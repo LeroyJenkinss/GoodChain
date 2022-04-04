@@ -1,34 +1,39 @@
+from consolemenu import SelectionMenu
+from login import Login
 
-#Import the necessary packages
-from consolemenu import *
-from consolemenu.items import *
 
-#Create the menu
-menu = ConsoleMenu("Title","Subtitle")
 
-#Create some items
+if __name__ == "__main__":
+    menu_list=["login", "explore the blockchain", "Sign up"]
+    menu = SelectionMenu(menu_list,"Public Menu", "Menu for sign up in Goodchain")
+    menu.show()
+    menu.join()
 
-#Menu Item is the base class for all items,it doesn't do anything when selected
-menu_item = MenuItem("MenuItem")
+    selection = menu.selected_option + 1
 
-#A Function Item runs a Python function when selected
-function_item = FunctionItem("CallaPythonfunction",input,["Enteraninput"])
+    print(f'this is the option {selection}')
 
-#A Command Item runs a consolecommand
-command_item = CommandItem("Runaconsolecommand","touchhello.txt")
 
-#A Selection Menu constructs a menu from a list of strings
-selection_menu = SelectionMenu(["item1","item2","item3"])
+    if selection == 1:
+        option1 = Login()
+        option1.hi()
+        if option1.succesfullLogIn == True:
+            menu_list = ["Transfer Coins", "Check the Balance", "Explore the Chain", "Check the pool",
+                         "Cancel a transaction", "Mine a Block", "Log out"]
+            menu = SelectionMenu(menu_list, f'UserName: {option1.userName}. {option1.lastName}', "Welcome to the goodChain Node")
+            menu.show()
+            menu.join()
 
-#A Submenu Item lets you add a menu(the selection_menu above,for example)
-#as a submenu of another menu
-submenu_item = SubmenuItem("Submenuitem",selection_menu,menu)
+            selection = menu.selected_option + 1
 
-#Once we're done creating them, we just add the items to the menu
-menu.append_item(menu_item)
-menu.append_item(function_item)
-menu.append_item(command_item)
-menu.append_item(submenu_item)
+    elif selection == 2:
+        pass
 
-#Finally,wecallshowtoshowthemenuandallowtheusertointeract
-menu.show()
+    elif selection == 3:
+        pass
+
+    elif selection == 4:
+        exit()
+
+
+
