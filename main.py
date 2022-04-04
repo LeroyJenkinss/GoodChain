@@ -1,5 +1,8 @@
-from consolemenu import SelectionMenu
+from consolemenu import SelectionMenu, ConsoleMenu
+from consolemenu.items import *
+
 from login import Login
+from signup import Signup
 
 
 
@@ -11,7 +14,6 @@ if __name__ == "__main__":
 
     selection = menu.selected_option + 1
 
-    print(f'this is the option {selection}')
 
 
     if selection == 1:
@@ -20,7 +22,7 @@ if __name__ == "__main__":
         if option1.succesfullLogIn == True:
             menu_list = ["Transfer Coins", "Check the Balance", "Explore the Chain", "Check the pool",
                          "Cancel a transaction", "Mine a Block", "Log out"]
-            menu = SelectionMenu(menu_list, f'UserName: {option1.userName}. {option1.lastName}', "Welcome to the goodChain Node")
+            menu = SelectionMenu(menu_list, f'UserName: {option1.userName}', "Welcome to the goodChain Node")
             menu.show()
             menu.join()
 
@@ -30,7 +32,12 @@ if __name__ == "__main__":
         pass
 
     elif selection == 3:
-        pass
+        menu = ConsoleMenu("Sign up", "SubMenu")
+
+
+
+        sign = Signup()
+        sign.registerNewUser()
 
     elif selection == 4:
         exit()

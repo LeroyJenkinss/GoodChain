@@ -2,7 +2,7 @@
 class Login:
     succesfullLogIn = True
     userName = ''
-    lastName = ''
+    password = None
 
     def hi(self):
         print('hello')
