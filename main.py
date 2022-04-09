@@ -14,9 +14,7 @@ def menu1():
         menu = SelectionMenu(menu_list, f'UserName: {option1.userName}', "Welcome to the goodChain Node")
         menu.show()
         menu.join()
-
         selection = menu.selected_option + 1
-
 
 def menu2():
     pass
@@ -33,7 +31,7 @@ def menu3():
         if not validation:
             count += 1
         if validation:
-            menu1()
+            mainmenu()
 
 
 
@@ -41,7 +39,9 @@ def menu4():
     exit()
 
 
-if __name__ == "__main__":
+
+
+def mainmenu():
     menu_list = ["login", "explore the blockchain", "Sign up"]
     menu = SelectionMenu(menu_list, "Public Menu", "Menu for sign up in Goodchain")
     menu.show()
@@ -56,3 +56,6 @@ if __name__ == "__main__":
         menu3()
     elif selection == 4:
         menu4()
+
+if __name__ == "__main__":
+    mainmenu()
