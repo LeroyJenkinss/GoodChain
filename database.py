@@ -8,16 +8,12 @@ def create_connection(db_file):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print(sqlite3.version)
         return conn
 
     except Error as e:
-        print('hi')
         print(e)
     finally:
-        if conn:
-            print('ha')
-            # conn.close()
+        pass
 
 
 if __name__ == '__main__':
@@ -68,14 +64,6 @@ def Getcur():
     conn = create_connection(database)
     cur = conn.cursor()
     return cur
-
-    # conn = create_connection(database)
-    # cur = conn.cursor()
-    # sql_statement = 'SELECT * from USERS'
-    # cur.execute(sql_statement)
-    # print(cur.fetchone())
-
-    # create tables
 
 
 if __name__ == '__main__':
