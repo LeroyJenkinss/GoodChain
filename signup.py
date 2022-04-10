@@ -6,8 +6,6 @@ from sqlite3 import Error
 class Signup:
 
     def __init__(self):
-        getcurConn()
-        self.conn, self.cur = getcurConn()
         self.userName = ''
         self.password = ''
         self.publicKey = ''
@@ -21,6 +19,7 @@ class Signup:
 
         password = input('Pls write your password: ')
         passwordCorrect = self.validate_password(password)
+
         if passwordCorrect:
             self.password = sha256(password)
 
@@ -30,8 +29,8 @@ class Signup:
             insertStatement = '''INSERT INTO USERS(USERNAME,PASSWORD,PUBLIC_KEY,PRIVATE_KEY)VALUES(?,?,?,?)'''
             valuesToInsert = (self.userName, self.password, self.publicKey, self.privateKey)
             try:
-                self.cur.execute(insertStatement, valuesToInsert)
-                self.conn.commit()
+                cur.execute(insertStatement, valuesToInsert)
+                conn.commit()
 
             except Error as e:
                 print(e)
@@ -42,7 +41,7 @@ class Signup:
 
     def validate_username(self, username):
         correctUsername = True
-        namePresent = self.cur.execute(f'select USERNAME from USERS WHERE USERNAME = \'{username}\'')
+        namePresent = cur.execute(f'select USERNAME from USERS WHERE USERNAME = \'{username}\'')
 
         if len(namePresent.fetchall()) > 0:
             print('false')
@@ -53,7 +52,7 @@ class Signup:
     def validate_password(self, password):
         correctPassword = True
         hashedPassword = sha256(password)
-        passwordPresent = self.cur.execute(f'select PASSWORD from USERS WHERE PASSWORD = \'{hashedPassword}\'')
+        passwordPresent = cur.execute(f'select PASSWORD from USERS WHERE PASSWORD = \'{hashedPassword}\'')
         if len(passwordPresent.fetchall()) > 0:
             print('false')
             correctPassword = False

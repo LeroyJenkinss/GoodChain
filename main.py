@@ -8,14 +8,24 @@ from signup import Signup
 
 def menu1():
     option1 = Login()
-    option1.hi()
-    if option1.succesfullLogIn == True:
-        menu_list = ["Transfer Coins", "Check the Balance", "Explore the Chain", "Check the pool",
-                     "Cancel a transaction", "Mine a Block", "Log out"]
-        menu = SelectionMenu(menu_list, f'UserName: {option1.userName}', "Welcome to the goodChain Node")
-        menu.show()
-        menu.join()
-        selection = menu.selected_option + 1
+    count = 0
+    while count != 3:
+        login = option1.tryLogIn()
+        if count == 3:
+            exit()
+        if not login:
+            count += 1
+            if count < 3:
+                print('Your login attempt was incorrect')
+            else:
+                print('We will now close the connetion')
+        if login:
+            menu_list = ["Transfer Coins", "Check the Balance", "Explore the Chain", "Check the pool",
+                         "Cancel a transaction", "Mine a Block", "Log out"]
+            menu = SelectionMenu(menu_list, f'UserName: {option1.userName}', "Welcome to the goodChain Node")
+            menu.show()
+            menu.join()
+            selection = menu.selected_option + 1
 
 def menu2():
     pass
@@ -30,6 +40,10 @@ def menu3():
             exit()
         if not validation:
             count += 1
+            if count < 3:
+                print('Your entry was not unique')
+            else:
+                print('We will now close the connetion')
         if validation:
             mainmenu()
 

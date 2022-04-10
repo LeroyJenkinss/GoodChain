@@ -59,6 +59,9 @@ def getcurConn():
     cur = conn.cursor()
     return conn, cur
 
+conn, cur = getcurConn()
+
 
 if __name__ == '__main__':
     main()
+
