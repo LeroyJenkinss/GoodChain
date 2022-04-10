@@ -12,13 +12,8 @@ def create_connection(db_file):
 
     except Error as e:
         print(e)
-    finally:
-        pass
 
-
-if __name__ == '__main__':
-
-    create_connection(r".\db\pythonsqlite.db")
+    return conn
 
 
 def create_table(conn, create_table_sql):
@@ -30,8 +25,8 @@ def create_table(conn, create_table_sql):
     try:
         c = conn.cursor()
         c.execute(create_table_sql)
+
     except Error as e:
-        print('do')
         print(e)
 
 
@@ -44,7 +39,6 @@ def main():
                                         public_key varchar(200),
                                         private_key varchar(200)
                                     ); """
-
 
     # create a database connection
     conn = create_connection(database)
@@ -59,11 +53,11 @@ def main():
         print("Error! cannot create the database connection.")
 
 
-def Getcur():
+def getcurConn():
     database = r".\db\pythonsqlite.db"
     conn = create_connection(database)
     cur = conn.cursor()
-    return cur
+    return conn, cur
 
 
 if __name__ == '__main__':

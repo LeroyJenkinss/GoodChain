@@ -1,5 +1,6 @@
 from consolemenu import SelectionMenu, ConsoleMenu
 from consolemenu.items import *
+import database
 
 from login import Login
 from signup import Signup
@@ -19,7 +20,6 @@ def menu1():
 def menu2():
     pass
 
-
 def menu3():
     menu = ConsoleMenu("Sign up", "SubMenu")
     sign = Signup()
@@ -33,13 +33,8 @@ def menu3():
         if validation:
             mainmenu()
 
-
-
 def menu4():
     exit()
-
-
-
 
 def mainmenu():
     menu_list = ["login", "explore the blockchain", "Sign up"]
@@ -58,4 +53,5 @@ def mainmenu():
         menu4()
 
 if __name__ == "__main__":
+    database.main()
     mainmenu()
