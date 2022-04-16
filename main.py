@@ -1,6 +1,6 @@
 from consolemenu import SelectionMenu, ConsoleMenu
-from consolemenu.items import *
 import database
+from submenu import *
 
 from login import Login
 from signup import Signup
@@ -20,12 +20,19 @@ def menu1():
             else:
                 print('We will now close the connetion')
         if login:
+            count = 3
             menu_list = ["Transfer Coins", "Check the Balance", "Explore the Chain", "Check the pool",
                          "Cancel a transaction", "Mine a Block", "Log out"]
             menu = SelectionMenu(menu_list, f'UserName: {option1.userName}', "Welcome to the goodChain Node")
             menu.show()
             menu.join()
             selection = menu.selected_option + 1
+
+            submenu = Submenu()
+            submenu.mainSubMenu(selection)
+
+
+
 
 def menu2():
     pass
