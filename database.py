@@ -33,12 +33,39 @@ def create_table(conn, create_table_sql):
 def main():
     database = r".\db\pythonsqlite.db"
 
-    sql_create_projects_table = """ CREATE TABLE IF NOT EXISTS USERS (
-                                        username varchar(100) PRIMARY KEY,
+    sql_create_users_table = """ CREATE TABLE IF NOT EXISTS USERS (
+                                        id INTEGER PRIMARY KEY,
+                                        username varchar(100) NOT NULL,
                                         password varchar(100) NOT NULL,
                                         public_key varchar(200),
                                         private_key varchar(200)
                                     ); """
+
+    sql_create_block_table = """ CREATE TABLE IF NOT EXISTS BLOCK (
+                                        id INTEGER PRIMARY KEY,
+                                        hash TEXT,
+                                        created TEXT,
+                                        modified TEXT
+                                    ); """
+
+    sql_create_pool_table = """ CREATE TABLE IF NOT EXISTS POOL (
+                                       id INTEGER PRIMARY KEY,
+                                       blockid integer references BLOCK,
+                                       poolfull boolean,
+                                       created text,
+                                       modified text
+                                    ); """
+
+    sql_create_transactions_table = """ CREATE TABLE TRANSACTIONS (
+                                                id  INTEGER PRIMARY KEY,
+                                                sender integer constraint transactions_users_id_fk references USERS,
+                                                receiver integer constraint transactions_users_id_fk references USERS,
+                                                txvalue decimal,
+                                                txfee decimal,
+                                                poolid integer constraint transactions_users_id_fk references POOL,
+                                                created TEXT,
+                                                modified TEXT
+                                            ); """
 
     # create a database connection
     conn = create_connection(database)
@@ -46,7 +73,10 @@ def main():
     # create tables
     if conn is not None:
         # create projects table
-        create_table(conn, sql_create_projects_table)
+        create_table(conn, sql_create_users_table)
+        create_table(conn, sql_create_block_table)
+        create_table(conn, sql_create_pool_table)
+        create_table(conn, sql_create_transactions_table)
 
 
     else:
