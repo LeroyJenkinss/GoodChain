@@ -1,5 +1,6 @@
-from database import *
+
 import main
+from GoodChain.transactions import Transactions
 
 
 class Submenu:
@@ -27,7 +28,9 @@ class Submenu:
             main.mainmenu()
 
     def transferCoins(self):
-        pass
+        senderId = ''
+        Transactions.newTransaction(self)
+
 
     def checkTheBlalance(self):
         pass

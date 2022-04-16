@@ -32,10 +32,9 @@ def menu1():
             submenu.mainSubMenu(selection)
 
 
-
-
 def menu2():
     pass
+
 
 def menu3():
     menu = ConsoleMenu("Sign up", "SubMenu")
@@ -54,8 +53,10 @@ def menu3():
         if validation:
             mainmenu()
 
+
 def menu4():
     exit()
+
 
 def mainmenu():
     menu_list = ["login", "explore the blockchain", "Sign up"]
@@ -72,6 +73,7 @@ def mainmenu():
         menu3()
     elif selection == 4:
         menu4()
+
 
 if __name__ == "__main__":
     database.main()
