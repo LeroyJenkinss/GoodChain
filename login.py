@@ -5,8 +5,8 @@ from tools import sha256
 class Login:
 
     def __init__(self):
-        # getcurConn()
-        # self.conn, self.cur = getcurConn()
+
+        self.id = None
         self.userName = None
         self.password = None
 
@@ -23,17 +23,25 @@ class Login:
     def validateUsername(self):
         correctUsername = False
         namePresent = cur.execute(f'select USERNAME from USERS WHERE USERNAME = \'{self.userName}\'')
+        name = namePresent.fetchone()
 
-        if len(namePresent.fetchall()) != 0:
-            correctUsername = True
+        if not name:
             return correctUsername
+        correctUsername = True
+        self.id = name[0]
         return correctUsername
 
     def validatePassword(self):
         correctPassword = False
         hashedPassword = sha256(self.password)
         passwordPresent = cur.execute(f'select PASSWORD from USERS WHERE PASSWORD = \'{hashedPassword}\'')
-        if len(passwordPresent.fetchall()) != 0:
-            correctPassword = True
+        password = passwordPresent.fetchone()
+        if not password:
             return correctPassword
+        correctPassword = True
         return correctPassword
+
+
+    def getUserName(self):
+        return self.userName
+
