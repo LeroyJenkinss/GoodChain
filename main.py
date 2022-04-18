@@ -8,13 +8,13 @@ from signup import Signup
 
 
 def menu1():
-    option1 = Login()
+    loginUser = Login()
     count = 0
 
     while count != 3:
-        login = option1.tryLogIn()
+        login = loginUser.tryLogIn()
         if login:
-            submenu1()
+            submenu1(loginUser)
         if count == 3:
             exit()
         if not login:
@@ -68,29 +68,24 @@ def mainmenu():
         menu4()
 
 
-def submenu1():
-    option1 = Login()
-    sub = Submenu(option1.id)
+def submenu1(loginUser):
+    sub = Submenu(loginUser.id)
+    print(loginUser.userName)
 
-    menu = ConsoleMenu(f'UserName: {option1.userName}', "Welcome to the goodChain Node", exit_option_text="Log out")
-    transferCoin = FunctionItem("Transfer Coins", sub.transferCoins)
-    checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance)
+    menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Log out")
+    transferCoin = FunctionItem("Transfer Coins", sub.transferCoins, [loginUser.id])
+    checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance, [loginUser.id])
+    exploreTheChain = FunctionItem("Explore the Chain", sub.exploreTheChain, [loginUser.id])
+    checkThePool = FunctionItem("Check the pool", sub.checkThePool, [loginUser.id])
+    cancelTransaction = FunctionItem("Cancel a transaction", sub.cancelTransaction, [loginUser.id])
+    mineBlock = FunctionItem("Mine a Block", sub.mineBlock, [loginUser.id])
     menu.append_item(transferCoin)
     menu.append_item(checkTheBalance)
-
+    menu.append_item(exploreTheChain)
+    menu.append_item(checkThePool)
+    menu.append_item(cancelTransaction)
+    menu.append_item(mineBlock)
     menu.show()
-    # menu_list = ["Transfer Coins", "Check the Balance", "Explore the Chain", "Check the pool",
-    #              "Cancel a transaction", "Mine a Block", "Log out"]
-    # menu = SelectionMenu(menu_list, f'UserName: {option1.userName}', "Welcome to the goodChain Node")
-    # menu.show()
-    # menu.join()
-    # selection = menu.selected_option + 1
-    #
-    # sub.mainSubMenu(selection, option1.userName)
-    # while selection != 7 or selection != 8:
-    #     main.submenu1()
-    # when passing parameters
-    # checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance, [id])
 
 
 if __name__ == "__main__":

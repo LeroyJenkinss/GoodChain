@@ -3,28 +3,24 @@ import main
 from GoodChain.transactions import Transactions
 
 
-
 class Submenu:
 
     def __init__(self, id):
-        selection = None
         self.id = id
 
-
-    def transferCoins(self):
-        # we moeten hier een user id meegeven
+    def transferCoins(self, id):
+        print(f'this is the id: {id}')
         count = 0
-        transfered = False
+        validRecipient = False
         transaction = Transactions()
-        while count != 3 and transfered == False:
+        while count != 3 and validRecipient == False:
             senderName = input('Pls give the name of the person you would like to send coins: ')
-            if transaction.newTransaction(self.id, senderName) == False:
+            if not transaction.validTransaction(self.id, senderName):
                 count += 1
             else:
-                transfered = True
+                validRecipient = True
 
-
-
+        transaction.newTransaction()
 
 
     def checkTheBalance(self):

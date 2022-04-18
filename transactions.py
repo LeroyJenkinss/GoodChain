@@ -1,5 +1,6 @@
 import main
 from database import *
+from GoodChain.pools import Pools
 
 
 
@@ -7,14 +8,40 @@ class Transactions:
 
     def __init__(self):
         self.Id = None
+        self.sendTo = None
+        self.transactionFee = None
 
-    def newTransaction(self, id, senderName):
+    def validTransaction(self, id, sendername):
+
         sqlStatement = 'SELECT username from USERS WHERE username=:sender'
-        senderIdCorrect = cur.execute(sqlStatement, {"sender": senderName})
-        if len(senderIdCorrect.fetchall()) != 0:
-            pass
-        else:
-            print('The user you want to transfer to doesn\'t exist ' )
+        try:
+            cur.execute(sqlStatement, {"sender": sendername})
+            self.sendTo = sendername
+        except Error as e:
+            print(e)
             return False
         self.Id = id
-        print('yes')
+
+        return True
+
+    def newTransaction(self):
+        count = 0
+        while count != 3:
+            transferValue = input('Plz state the amount you would like to transfer, it must be a decimal number: ')
+            if isinstance(float(transferValue), float):
+                self.createTransAction(float(transferValue))
+                count = 3
+            else:
+                print(f'this is the number: {transferValue}')
+                count += 1
+                print(f'The amount is not a decimal number you have {3 - count} try remaining')
+        return
+
+
+    def createTransAction(self,value):
+        self.transactionFee = value * 0.05
+        pool = Pools().getavailablePool()
+        print(pool)
+
+
+

@@ -17,7 +17,9 @@ class Login:
         correctPassword = self.validatePassword()
 
         if correctUsername and correctPassword:
-            return True
+            print(f'this is username: {self.userName}')
+            print(f'this is id: {self.id}')
+            return True, self.id
         return False
 
     def validateUsername(self):
@@ -28,7 +30,9 @@ class Login:
         if not name:
             return correctUsername
         correctUsername = True
-        self.id = name[0]
+        idPresent = cur.execute(f'select id from USERS WHERE USERNAME = \'{self.userName}\'')
+        rawid = str(idPresent.fetchone())
+        self.id = rawid[1:2]
         return correctUsername
 
     def validatePassword(self):
