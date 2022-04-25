@@ -43,6 +43,7 @@ def main():
 
     sql_create_block_table = """ CREATE TABLE IF NOT EXISTS BLOCK (
                                         id INTEGER PRIMARY KEY,
+                                        poolid integer references POOL,
                                         hash TEXT,
                                         created TEXT,
                                         modified TEXT
@@ -50,16 +51,14 @@ def main():
 
     sql_create_pool_table = """ CREATE TABLE IF NOT EXISTS POOL (
                                        id INTEGER PRIMARY KEY,
-                                       blockid integer references BLOCK,
                                        poolfull boolean,
-                                       created text,
-                                       modified text
+                                       created text
                                     ); """
 
     sql_create_transactions_table = """ CREATE TABLE TRANSACTIONS (
                                                 id  INTEGER PRIMARY KEY,
                                                 sender integer constraint transactions_users_id_fk references USERS,
-                                                receiver integer constraint transactions_users_id_fk references USERS,
+                                                reciever integer constraint transactions_users_id_fk references USERS,
                                                 txvalue decimal,
                                                 txfee decimal,
                                                 poolid integer constraint transactions_users_id_fk references POOL,

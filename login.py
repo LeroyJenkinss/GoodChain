@@ -38,7 +38,7 @@ class Login:
     def validatePassword(self):
         correctPassword = False
         hashedPassword = sha256(self.password)
-        passwordPresent = cur.execute(f'select PASSWORD from USERS WHERE PASSWORD = \'{hashedPassword}\'')
+        passwordPresent = cur.execute(f'select PASSWORD from USERS WHERE PASSWORD = \'{hashedPassword}\' and USERNAME = \'{self.userName}\'')
         password = passwordPresent.fetchone()
         if not password:
             return correctPassword
