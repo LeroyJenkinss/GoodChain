@@ -49,3 +49,28 @@ class Transactions:
         except Error as e:
             print(e)
 
+    def newUserInsert(self, userName):
+        try:
+            userId = cur.execute("SELECT ID FROM USERS WHERE username = (?)", [userName]).fetchone()[0]
+        except Error as e:
+            print(e)
+
+        try:
+            sqlstatement = '''select id from POOL where realpool = False'''
+            poolId = cur.execute(sqlstatement).fetchone()[0]
+        except Error as e:
+            print(e)
+
+        try:
+            sqlstatement = '''select id from users where username = "fake"'''
+            fakeSenderId = cur.execute(sqlstatement).fetchone()[0]
+        except Error as e:
+            print(e)
+
+        try:
+            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created) VALUES (?,?,?,?,?,?)'''
+            values_to_insert = (fakeSenderId, userId, 50, 0, poolId, datetime.now())
+            cur.execute(sqlstatement, values_to_insert)
+            conn.commit()
+        except Error as e:
+            print(e)

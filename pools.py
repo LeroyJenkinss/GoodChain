@@ -9,7 +9,7 @@ class Pools:
 
     def getavailablePool(self):
         try:
-            sqlStatement = '''SELECT id from POOL WHERE poolfull = 0'''
+            sqlStatement = '''SELECT id from POOL WHERE poolfull = 0 and realpool = 1'''
             cur.execute(sqlStatement)
         except Error as e:
             print(e)
@@ -23,8 +23,8 @@ class Pools:
 
     def makeNewPool(self):
         try:
-            sqlStatement = '''insert into POOL (poolfull, created) VALUES (?,?)'''
-            values_to_insert = (False, str(datetime.now()))
+            sqlStatement = '''insert into POOL (poolfull, created, realpool) VALUES (?,?,?)'''
+            values_to_insert = (False, str(datetime.now()), True)
             cur.execute(sqlStatement, values_to_insert)
             conn.commit()
         except Error as e:
@@ -32,7 +32,7 @@ class Pools:
         return self.getavailablePool()
 
     def countPoolTransactions(self, idpool):
-        sqlStatement = '''select * from TRANSACTIONS where poolid = ?'''
+        sqlStatement = '''select * from TRANSACTIONS where poolid = ? and realpool = 1'''
         values_to_insert = (idpool)
         cur.execute(sqlStatement, values_to_insert)
         listAllTrans = cur.fetchall()
@@ -49,3 +49,13 @@ class Pools:
             print(e)
         return
 
+    def newUserPool(self):
+            sqlstatement = '''select id from POOL where realpool = 0'''
+            nullcheck = cur.execute(sqlstatement).fetchone()
+            print(f'this is {nullcheck}')
+            if nullcheck is None:
+
+                sqlstatement = '''insert into POOL (poolfull, created, realpool) VALUES (?,?,?)'''
+                values_to_insert = (False, datetime.now(), False)
+                cur.execute(sqlstatement, values_to_insert)
+                conn.commit()

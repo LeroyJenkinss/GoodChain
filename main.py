@@ -2,6 +2,7 @@ from consolemenu import SelectionMenu, ConsoleMenu
 from consolemenu.items import FunctionItem, command_item, submenu_item
 import database
 from submenu import *
+from pools import Pools
 
 from login import Login
 from signup import Signup
@@ -90,4 +91,6 @@ def submenu1(loginUser):
 
 if __name__ == "__main__":
     database.main()
+    Pools().newUserPool()
+    Signup().newFakeUser()
     mainmenu()

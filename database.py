@@ -52,6 +52,7 @@ def main():
     sql_create_pool_table = """ CREATE TABLE IF NOT EXISTS POOL (
                                        id INTEGER PRIMARY KEY,
                                        poolfull boolean,
+                                       realpool boolean,
                                        created text
                                     ); """
 
