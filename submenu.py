@@ -9,7 +9,6 @@ class Submenu:
         self.id = id
 
     def transferCoins(self, id):
-        print(f'this is the id: {id}')
         count = 0
         validRecipient = False
         transaction = Transactions()

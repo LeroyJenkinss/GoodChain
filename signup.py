@@ -48,7 +48,7 @@ class Signup:
         namePresent = cur.execute(f'select USERNAME from USERS WHERE USERNAME = \'{username}\'')
 
         if len(namePresent.fetchall()) > 0:
-            print('false')
+
             correctUsername = False
             return correctUsername
         return correctUsername
@@ -58,7 +58,6 @@ class Signup:
         hashedPassword = sha256(password)
         passwordPresent = cur.execute(f'select PASSWORD from USERS WHERE PASSWORD = \'{hashedPassword}\'')
         if len(passwordPresent.fetchall()) > 0:
-            print('false')
             correctPassword = False
             return correctPassword
         return correctPassword
@@ -69,7 +68,6 @@ class Signup:
     def newFakeUser(self):
         sqlstatement = '''select * from USERS where username = 'fake' '''
         nullcheck = cur.execute(sqlstatement).fetchone()
-        print(f'this is {nullcheck}')
         if nullcheck is None:
             sqlstatement = '''insert into USERS (username, password) VALUES (?,?)'''
             values_to_insert = ('fake', 'fake')

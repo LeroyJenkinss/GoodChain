@@ -13,7 +13,7 @@ from hashlib import blake2b
 
 
 def sha256(message):
-    return hashlib.sha256(message.encode('UTF-8')).hexdigest()
+    return hashlib.sha256(str(message).encode('UTF-8')).hexdigest()
 
 def generate_keys():
     privateIn = rsa.generate_private_key(public_exponent=65537, key_size=2048)

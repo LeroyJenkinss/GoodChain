@@ -17,8 +17,6 @@ class Login:
         correctPassword = self.validatePassword()
 
         if correctUsername and correctPassword:
-            print(f'this is username: {self.userName}')
-            print(f'this is id: {self.id}')
             return True, self.id
         return False
 

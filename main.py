@@ -53,9 +53,13 @@ def menu4():
     exit()
 
 
+dbMessage = ''
+
+
 def mainmenu():
+    aap = '\n asfdas'
     menu_list = ["login", "explore the blockchain", "Sign up"]
-    menu = SelectionMenu(menu_list, "Public Menu", "Menu for sign up in Goodchain")
+    menu = SelectionMenu(menu_list, "Public Menu", f"Menu for sign up in Goodchain {dbMessage}")
     menu.show()
     menu.join()
 
@@ -72,8 +76,6 @@ def mainmenu():
 
 def submenu1(loginUser):
     sub = Submenu(loginUser.id)
-    print(loginUser.userName)
-
     menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Log out")
     transferCoin = FunctionItem("Transfer Coins", sub.transferCoins, [loginUser.id])
     checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance, [loginUser.id])
@@ -93,9 +95,13 @@ def submenu1(loginUser):
 if __name__ == "__main__":
     database.main()
     transValid = HashCheck().CompareHashes('transactionHashes.txt')
-    hashValid = HashCheck().CompareHashes('userHash.txt')
-    if not transValid or not hashValid:
-        print('db has been tampered with')
+    userValid = HashCheck().CompareHashes('userHash.txt')
+    if not transValid:
+        print('Transaction data has been tempered with')
+        dbMessage = '\nTransaction has been tempered with'
+    if not userValid:
+        print('User data has been tempered with')
+        dbMessage = '\nUser has been tempered with'
 
     Pools().newUserPool()
     Signup().newFakeUser()

@@ -52,7 +52,6 @@ class Pools:
     def newUserPool(self):
             sqlstatement = '''select id from POOL where realpool = 0'''
             nullcheck = cur.execute(sqlstatement).fetchone()
-            print(f'this is {nullcheck}')
             if nullcheck is None:
 
                 sqlstatement = '''insert into POOL (poolfull, created, realpool) VALUES (?,?,?)'''
