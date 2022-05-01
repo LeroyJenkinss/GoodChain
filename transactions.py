@@ -2,6 +2,8 @@ import main
 from database import *
 from GoodChain.pools import Pools
 from datetime import datetime
+from DbHashCheck import *
+
 
 
 class Transactions:
@@ -46,6 +48,8 @@ class Transactions:
             values_to_insert = (self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now())
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
+
+            HashCheck().writeHashtransaction()
         except Error as e:
             print(e)
 
@@ -72,5 +76,9 @@ class Transactions:
             values_to_insert = (fakeSenderId, userId, 50, 0, poolId, datetime.now())
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
+
+            HashCheck().writeHashtransaction()
+
+
         except Error as e:
             print(e)

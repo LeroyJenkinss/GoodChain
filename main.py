@@ -6,6 +6,7 @@ from pools import Pools
 
 from login import Login
 from signup import Signup
+from DbHashCheck import HashCheck
 
 
 def menu1():
@@ -91,6 +92,11 @@ def submenu1(loginUser):
 
 if __name__ == "__main__":
     database.main()
+    transValid = HashCheck().CompareHashes('transactionHashes.txt')
+    hashValid = HashCheck().CompareHashes('userHash.txt')
+    if not transValid or not hashValid:
+        print('db has been tampered with')
+
     Pools().newUserPool()
     Signup().newFakeUser()
     mainmenu()

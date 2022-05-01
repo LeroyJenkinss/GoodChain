@@ -1,6 +1,7 @@
 from database import *
 from tools import sha256, generate_keys
 from sqlite3 import Error
+from DbHashCheck import *
 import transactions
 
 
@@ -31,11 +32,13 @@ class Signup:
             try:
                 cur.execute(insertStatement, valuesToInsert)
                 conn.commit()
+                transactions.Transactions.newUserInsert(self,self.userName)
+                HashCheck().writeHashUser()
 
             except Error as e:
                 print(e)
 
-            transactions.Transactions.newUserInsert(self,self.userName)
+
             return True
 
         return False

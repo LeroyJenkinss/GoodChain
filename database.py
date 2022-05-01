@@ -67,6 +67,7 @@ def main():
                                                 modified TEXT
                                             ); """
 
+
     # create a database connection
     conn = create_connection(database)
 
