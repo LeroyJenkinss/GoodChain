@@ -57,7 +57,6 @@ dbMessage = ''
 
 
 def mainmenu():
-    aap = '\n asfdas'
     menu_list = ["login", "explore the blockchain", "Sign up"]
     menu = SelectionMenu(menu_list, "Public Menu", f"Menu for sign up in Goodchain {dbMessage}")
     menu.show()
@@ -80,7 +79,7 @@ def submenu1(loginUser):
     transferCoin = FunctionItem("Transfer Coins", sub.transferCoins, [loginUser.id])
     checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance, [loginUser.id])
     exploreTheChain = FunctionItem("Explore the Chain", sub.exploreTheChain, [loginUser.id])
-    checkThePool = FunctionItem("Check the pool", sub.checkThePool, [loginUser.id])
+    checkThePool = FunctionItem("Check the pool", sub.checkThePool)
     cancelTransaction = FunctionItem("Cancel a transaction", sub.cancelTransaction, [loginUser.id])
     mineBlock = FunctionItem("Mine a Block", sub.mineBlock, [loginUser.id])
     menu.append_item(transferCoin)
@@ -97,10 +96,8 @@ if __name__ == "__main__":
     transValid = HashCheck().CompareHashes('transactionHashes.txt')
     userValid = HashCheck().CompareHashes('userHash.txt')
     if not transValid:
-        print('Transaction data has been tempered with')
         dbMessage = '\nTransaction has been tempered with'
     if not userValid:
-        print('User data has been tempered with')
         dbMessage = '\nUser has been tempered with'
 
     Pools().newUserPool()

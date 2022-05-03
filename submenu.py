@@ -1,6 +1,8 @@
 from database import *
 import main
 from GoodChain.transactions import Transactions
+from GoodChain.balance import Balance
+from GoodChain.pools import Pools
 
 
 class Submenu:
@@ -21,18 +23,19 @@ class Submenu:
 
         transaction.newTransaction()
 
+    def checkTheBalance(self, id):
 
-    def checkTheBalance(self):
-        pass
+        print(f'Your balance is currently: {Balance().returnBalance(id)}')
 
     def exploreTheChain(self):
         pass
 
     def checkThePool(self):
-        pass
+        Pools().checkPool()
 
     def cancelTransaction(self):
         pass
 
     def mineBlock(self):
         pass
+

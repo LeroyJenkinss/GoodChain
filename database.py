@@ -53,10 +53,11 @@ def main():
                                        id INTEGER PRIMARY KEY,
                                        poolfull boolean,
                                        realpool boolean,
+                                       verified boolean,
                                        created text
                                     ); """
 
-    sql_create_transactions_table = """ CREATE TABLE TRANSACTIONS (
+    sql_create_transactions_table = """ CREATE TABLE IF NOT EXISTS TRANSACTIONS (
                                                 id  INTEGER PRIMARY KEY,
                                                 sender integer constraint transactions_users_id_fk references USERS,
                                                 reciever integer constraint transactions_users_id_fk references USERS,
@@ -66,6 +67,13 @@ def main():
                                                 created TEXT,
                                                 modified TEXT
                                             ); """
+    sql_create_verify_table = """ CREATE TABLE IF NOT EXISTS VERIFY (
+                                                    id  INTEGER PRIMARY KEY,
+                                                    firstcheckid integer constraint verify_users_id_fk references USERS,
+                                                    secondcheckid integer constraint verify_users_id_fk references USERS,
+                                                    thirdcheckid integer constraint verify_users_id_fk references USERS,
+                                                    transactionid integer constraint transactions_id_fk references TRANSACTIONS
+                                                ); """
 
 
     # create a database connection
@@ -78,6 +86,7 @@ def main():
         create_table(conn, sql_create_block_table)
         create_table(conn, sql_create_pool_table)
         create_table(conn, sql_create_transactions_table)
+        create_table(conn, sql_create_verify_table)
 
 
     else:

@@ -54,7 +54,22 @@ class Pools:
             nullcheck = cur.execute(sqlstatement).fetchone()
             if nullcheck is None:
 
-                sqlstatement = '''insert into POOL (poolfull, created, realpool) VALUES (?,?,?)'''
-                values_to_insert = (False, datetime.now(), False)
+                sqlstatement = '''insert into POOL (poolfull, created, realpool, verified) VALUES (?,?,?,?)'''
+                values_to_insert = (False, datetime.now(), False, False)
                 cur.execute(sqlstatement, values_to_insert)
                 conn.commit()
+
+    def checkPool(self):
+        try:
+            cur.execute('''SELECT id from POOL where id != (select poolid from BLOCK) and verified = false''')
+            toCheckTransId = cur.fetchall()
+            for a in toCheckTransId:
+                print(f'Pool :{a[0]}')
+
+            poolnum = input(f' We have {len(toCheckTransId)} pools pls typ in the pool you would like to see: ')
+            print(f'This is the poolnum: {poolnum}')
+# Hiermee moet ik de tranaction ophale uit de pool om deze te bekijken
+        except Error as e:
+            print(e)
+
+
