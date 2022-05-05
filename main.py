@@ -7,6 +7,7 @@ from pools import Pools
 from login import Login
 from signup import Signup
 from DbHashCheck import HashCheck
+from block import Block
 
 
 def menu1():
@@ -74,6 +75,7 @@ def mainmenu():
 
 
 def submenu1(loginUser):
+    Block().verifyBlocks(loginUser.id)
     sub = Submenu(loginUser.id)
     menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Log out")
     transferCoin = FunctionItem("Transfer Coins", sub.transferCoins, [loginUser.id])
@@ -99,7 +101,6 @@ if __name__ == "__main__":
         dbMessage = '\nTransaction has been tempered with'
     if not userValid:
         dbMessage = '\nUser has been tempered with'
-
     Pools().newUserPool()
     Signup().newFakeUser()
     mainmenu()

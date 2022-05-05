@@ -43,10 +43,13 @@ def main():
 
     sql_create_block_table = """ CREATE TABLE IF NOT EXISTS BLOCK (
                                         id INTEGER PRIMARY KEY,
+                                        blockhash TEXT,
                                         poolid integer references POOL,
-                                        hash TEXT,
-                                        created TEXT,
-                                        modified TEXT
+                                        mineruserid referencing USERS,
+                                        validateduserid1 referencing USERS,
+                                        validateduserid2 referencing USERS,
+                                        validateduserid3 referencing USERS,
+                                        created TEXT
                                     ); """
 
     sql_create_pool_table = """ CREATE TABLE IF NOT EXISTS POOL (
@@ -67,14 +70,6 @@ def main():
                                                 created TEXT,
                                                 modified TEXT
                                             ); """
-    sql_create_verify_table = """ CREATE TABLE IF NOT EXISTS VERIFY (
-                                                    id  INTEGER PRIMARY KEY,
-                                                    firstcheckid integer constraint verify_users_id_fk references USERS,
-                                                    secondcheckid integer constraint verify_users_id_fk references USERS,
-                                                    thirdcheckid integer constraint verify_users_id_fk references USERS,
-                                                    transactionid integer constraint transactions_id_fk references TRANSACTIONS
-                                                ); """
-
 
     # create a database connection
     conn = create_connection(database)
@@ -86,7 +81,7 @@ def main():
         create_table(conn, sql_create_block_table)
         create_table(conn, sql_create_pool_table)
         create_table(conn, sql_create_transactions_table)
-        create_table(conn, sql_create_verify_table)
+
 
 
     else:
@@ -99,9 +94,8 @@ def getcurConn():
     cur = conn.cursor()
     return conn, cur
 
-conn, cur = getcurConn()
 
+conn, cur = getcurConn()
 
 if __name__ == '__main__':
     main()
-

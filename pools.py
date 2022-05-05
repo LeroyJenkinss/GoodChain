@@ -104,35 +104,9 @@ class Pools:
                 if i == 3:
                     amounts.append(transaction[i])
 
-
-        print(senderList)
-        print(recieverList)
-        print(amounts)
         for a in range(0, len(senderList)):
             print(f'Transaction {a+1} in pool with ID {poolnum}: Sender {senderList[a]} transferred {amounts[a]} to reciever {recieverList[a]}')
         return
-
-
-
-
-
-
-
-
-
-
-
-            #
-            # for i in range(0, len(pool)):
-            #     # print(f'this is {transaction[i]} and i = {i}')
-            #     if i == 1:
-            #         try:
-            #            userName = cur.execute("SELECT username FROM USERS WHERE id = (?)", [transaction[i]]).fetchone()[0]
-            #            userList.append(userName)
-            #         except Error as e:
-            #            print(e)
-            #     for a in userList:
-            #         print(f'these are all senders: {a}')
 
 
 
