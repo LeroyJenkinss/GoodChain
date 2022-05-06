@@ -68,7 +68,9 @@ def main():
                                                 txfee decimal,
                                                 poolid integer constraint transactions_users_id_fk references POOL,
                                                 created TEXT,
-                                                modified TEXT
+                                                modified TEXT,
+                                                falsetransaction boolean,
+                                                transactionsig text
                                             ); """
 
     # create a database connection

@@ -26,3 +26,15 @@ def generate_keys():
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo)
     return private_key, public_key
+
+def sign(transaction, private):
+    private_key = load_pem_private_key(private, password=None)
+    signature = private_key.sign(
+        bytes(str(transaction), 'UTF-8'),
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256())
+    return signature
+

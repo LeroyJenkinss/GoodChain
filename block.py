@@ -17,6 +17,16 @@ class Block:
                     outputString += ', ' + str(a[0])
 
             print(f'The following id numbers are from block that can be verified by you: {outputString}')
+            choice = input(f'Would you like to verify any of these blocks? (Y = yes N = no)')
+            if choice == 'Y':
+                choiceloop = True
+                while choiceloop:
+                    idchoice = input(f'Which block id would you like to verify?')
+                    if outputString.__contains__(idchoice):
+                        choiceloop = False
+                        pass
+                        # Hier moet ik een functie aanrroepen verify nadat ik minning gemaakt heb
+
 
         except Error as e:
             print(e)

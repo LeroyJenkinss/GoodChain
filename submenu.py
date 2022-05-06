@@ -3,6 +3,7 @@ import main
 from GoodChain.transactions import Transactions
 from GoodChain.balance import Balance
 from GoodChain.pools import Pools
+from mining import Mining
 
 
 class Submenu:
@@ -36,6 +37,7 @@ class Submenu:
     def cancelTransaction(self):
         pass
 
-    def mineBlock(self):
-        pass
+    def mineBlock(self, minerId):
+        Mining().mine(minerId)
+        # call mining file
 

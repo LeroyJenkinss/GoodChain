@@ -3,6 +3,7 @@ from database import *
 from GoodChain.pools import Pools
 from datetime import datetime
 from DbHashCheck import *
+from tools import sign
 
 
 
@@ -44,11 +45,11 @@ class Transactions:
         self.transactionFee = value * 0.05
         poolId = Pools().getavailablePool()[0]
         try:
-            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created) VALUES (?,?,?,?,?,?)'''
-            values_to_insert = (self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now())
+            signedTransaction = self.signtransaction(poolId)
+            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created, transactionsig) VALUES (?,?,?,?,?,?,?)'''
+            values_to_insert = (self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
-
             HashCheck().writeHashtransaction()
         except Error as e:
             print(e)
@@ -78,6 +79,17 @@ class Transactions:
             conn.commit()
 
             HashCheck().writeHashtransaction()
+
+
+        except Error as e:
+            print(e)
+
+    def signtransaction(self,poolid):
+        try:
+            privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [self.Id]).fetchone()[0]
+            signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
+            return sign(signdata,privatesig)
+
 
 
         except Error as e:
