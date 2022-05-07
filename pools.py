@@ -32,8 +32,8 @@ class Pools:
             cur.execute(sqlStatement)
             poolid = cur.fetchone()
 
-            sqlStatement = '''insert into BLOCK (poolid, verifiedblock) VALUES (?,?)'''
-            values_to_insert2 = (poolid[0], False)
+            sqlStatement = '''insert into BLOCK (poolid, verifiedblock, created, blockhash) VALUES (?,?,?,?)'''
+            values_to_insert2 = (poolid[0], False, datetime.now(), 'genesisblock')
             cur.execute(sqlStatement, values_to_insert2)
             conn.commit()
 
@@ -117,6 +117,16 @@ class Pools:
         for a in range(0, len(senderList)):
             print(f'Transaction {a+1} in pool with ID {poolnum}: Sender {senderList[a]} transferred {amounts[a]} to reciever {recieverList[a]}')
         return
+
+    def GetPoolTransactions(self, poolId):
+        sql_statement = '''SELECT * from POOl as P left join TRANSACTIONS T on P.Id = T.PoolId WHERE P.Id = poolId'''
+        try:
+            cur.execute(sql_statement)
+        except Error as e:
+            print(e)
+            return False
+        return cur.fetchone()
+
 
 
 

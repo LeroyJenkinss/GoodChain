@@ -47,6 +47,7 @@ def main():
                                         poolid integer references POOL,
                                         mineruserid referencing USERS,
                                         verifiedblock boolean DEFAULT FALSE,
+                                        nonce INTEGER,
                                         created TEXT
                                     ); """
 
@@ -75,6 +76,7 @@ def main():
                                                     id INTEGER PRIMARY KEY,
                                                     blockid integer references BLOCK,
                                                     validateUserId references USER,
+                                                    blockcorrect boolean,
                                                     Created TEXT
                                                 ); """
 

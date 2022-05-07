@@ -21,7 +21,6 @@ class Transactions:
             sqlStatement = 'SELECT id from USERS WHERE username=:sender'
             try:
                 name = cur.execute(sqlStatement, {"sender": sendername}).fetchone()
-                print(f'name {name}')
                 if name is not None:
                     self.sendToId = name[0]
                     name = False
@@ -136,6 +135,18 @@ class Transactions:
         except Error as e:
             print(e)
 
+    def createTransAction2(self, fakeuser, recieverId, txValue, txFee, poolId, signature):
+        poolId = Pools().getavailablePool()[0]
+        try:
+            signedTransaction = self.signtransaction(poolId)
+            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created, transactionsig) VALUES (?,?,?,?,?,?,?)'''
+            values_to_insert = (
+                self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
+            cur.execute(sqlstatement, values_to_insert)
+            conn.commit()
+            HashCheck().writeHashtransaction()
+        except Error as e:
+            print(e)
 
 
 

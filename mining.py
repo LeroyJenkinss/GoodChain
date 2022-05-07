@@ -1,8 +1,13 @@
+import hashlib
+import time
+from datetime import datetime, timedelta
 
 from database import *
 from transactions import Transactions
 from balance import Balance
-from tools import verify
+from tools import verify, sha256
+from block import Block
+from pools import Pools
 
 
 class Mining:
@@ -11,18 +16,43 @@ class Mining:
         self.MinerId = None
         self.poolsString = ''
 
-    pass
-
     # alle transaction uit een pool in een list
 
     def mine(self, minerId):
-        self.MinerId = minerId
+        MinerId = minerId
         poolId = self.checkAvailablePools()
         if poolId is not None:
-            print(f'this is poolid {poolId}')
-        else:
-            return
+            previousBlock = Block().getLatestBlock()
+            if previousBlock[4] is None:
+                print(f'A block is already avialable for verifing')
+                return
+            previousBlockHash = None
+            if previousBlock is not None:
+                blockDate = datetime.strptime(previousBlock[6], '%Y-%m-%d %H:%M:%S.%f')
 
+                if blockDate > (datetime.now() - timedelta(minutes=3)):
+                    print(
+                        f'The last block has been mined less than 3 minutes before, please wait till you can mine again.')
+                    return
+                previousBlockHash = previousBlock[1]
+            data = Pools().GetPoolTransactions(poolId)
+            prefix = '0' * 2
+            start = time.time()
+
+            for i in range(1000000):
+                Nonce = i
+                digest = str(data) + str(i)
+                if previousBlockHash is not None:
+                    digest += str(previousBlockHash)
+                digest = sha256(digest)
+                if digest.startswith(prefix):
+                    currentHash = digest
+                    end = time.time()
+                    timeCount = end - start
+                    if timeCount < 20:
+                        time.sleep(20 - timeCount)
+                    Block().CreateBlock(currentHash, Nonce, minerId, poolId)
+                    return
 
     def checkAvailablePools(self):
         choicepool = True
@@ -52,7 +82,6 @@ class Mining:
         falseTransaction = []
         try:
             transactionList = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?) and falsetransaction == true || falsetransaction is NULL", [poolId]).fetchall()
-            print(f'this is the transList {transactionList}')
             for a in range(0, len(transactionList)):
                 balance = self.checkTransactions(transactionList[a][0], transactionList[a][1], transactionList[a][3],
                                                  transactionList[a][9])
