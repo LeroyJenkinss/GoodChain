@@ -4,13 +4,13 @@ from pools import Pools
 from tools import sha256
 from transactions import Transactions
 
+
 class Block:
 
     def verifyBlocks(self, userId):
         outputString = ""
         try:
             availableBlockId = cur.execute(
-
                 "select B.id  from Block B left outer join BLOCKVERIFY BV on B.id = BV.blockid where b.mineruserid != (?) and b.verifiedblock == false and b.mineruserid != (?) and (bv.validateUserId != (?) or bv.validateUserId is null);",
                 [userId, userId, userId]).fetchall()
             txsList = self.getTxFeeBlock(availableBlockId)
@@ -69,10 +69,11 @@ class Block:
         except Error as e:
             print(e)
 
-    def verifyBlock(self, block,userId):
+    def verifyBlock(self, block, userId):
         previousBlock = self.getLatestVerifiedBlock()
         previousBlockHash = None
         if previousBlock is not None:
+            print(f'previousblock {previousBlock}')
             previousBlockHash = previousBlock[1]
         data = Pools().GetPoolTransactions(block[2])
         digest = str(data) + str(block[2])
@@ -81,14 +82,15 @@ class Block:
         digest = sha256(digest)
         if digest == block[1]:
             self.createNewBlockVerify(block[0], userId, 1)
-            Transactions().createTransAction2(1, userId, int(Pools().GetPoolTransactions(block[3])[0]) + 50, 0, 1, 'miningreward')
+            Transactions().createTransAction2(1, userId, int(Pools().GetPoolTransactions(block[3])[0]) + 50, 0, 1,
+                                              'miningreward')
         else:
             print('block is not correct')
             self.createNewBlockVerify(block[0], userId, 0)
 
     def getLatestVerifiedBlock(self):
         try:
-            cur.execute("SELECT * FROM BLOCK where verified = 1 ORDER BY 1 DESC LIMIT 1")
+            cur.execute("SELECT * FROM BLOCK where verifiedblock = 1 ORDER BY 1 DESC LIMIT 1")
         except Error as e:
             print(e)
             return False
