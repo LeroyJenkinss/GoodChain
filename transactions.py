@@ -6,7 +6,6 @@ from DbHashCheck import *
 from tools import sign
 
 
-
 class Transactions:
 
     def __init__(self):
@@ -17,15 +16,21 @@ class Transactions:
         self.transactionFee = None
 
     def validTransaction(self, id, sendername):
-        sqlStatement = 'SELECT id from USERS WHERE username=:sender'
-        try:
-            cur.execute(sqlStatement, {"sender": sendername})
-            self.sendToId = cur.fetchone()[0]
-        except Error as e:
-            print(e)
-            return False
+        name = True
+        while name:
+            sqlStatement = 'SELECT id from USERS WHERE username=:sender'
+            try:
+                name = cur.execute(sqlStatement, {"sender": sendername}).fetchone()
+                print(f'name {name}')
+                if name is not None:
+                    self.sendToId = name[0]
+                    name = False
+                else:
+                    return False
+            except Error as e:
+                print(e)
+                return False
         self.Id = id
-
         return True
 
     def newTransaction(self):
@@ -47,7 +52,8 @@ class Transactions:
         try:
             signedTransaction = self.signtransaction(poolId)
             sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created, transactionsig) VALUES (?,?,?,?,?,?,?)'''
-            values_to_insert = (self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
+            values_to_insert = (
+                self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
             HashCheck().writeHashtransaction()
@@ -80,17 +86,37 @@ class Transactions:
 
             HashCheck().writeHashtransaction()
 
-
         except Error as e:
             print(e)
 
-    def signtransaction(self,poolid):
+    def signtransaction(self, poolid):
         try:
             privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [self.Id]).fetchone()[0]
             signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
-            return sign(signdata,privatesig)
-
-
+            return sign(signdata, privatesig)
 
         except Error as e:
             print(e)
+
+    def setFalseTransaction(self, transId):
+        sql_statement = f'UPDATE transactions Set falsetransaction = 1 WHERE Id = {transId}'
+        try:
+            cur.execute(sql_statement)
+            conn.commit()
+            print(f'Transaction has been flagged as not correct')
+        except Error as e:
+            print(e)
+
+    def setFalseTransactionToZero(self, userId):
+        try:
+            falseparlist = cur.execute(f'select id from transactions where sender = (?) and falsetransaction = 1 and txvalue != 0', [userId]).fetchall()
+            cur.execute(f'UPDATE transactions set txvalue = 0, txfee = 0 where falsetransaction = 1 and sender = (?)', [userId])
+            conn.commit()
+            if len(falseparlist) > 0:
+                print(f'The following transactions have been set to zero, due to not being valid {falseparlist}')
+            return
+
+        except Error as e:
+            print(e)
+
+

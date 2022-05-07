@@ -19,6 +19,8 @@ class Submenu:
             senderName = input('Pls give the name of the person you would like to send coins: ')
             if not transaction.validTransaction(self.id, senderName):
                 count += 1
+                if count == 3:
+                    return
             else:
                 validRecipient = True
 

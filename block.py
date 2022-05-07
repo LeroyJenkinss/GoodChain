@@ -7,8 +7,8 @@ class Block:
         outputString = ""
         try:
             availableBlockId = cur.execute(
-                "SELECT id FROM BLOCK WHERE mineruserid != (?) and (validateduserid1 != (?) or validateduserid2 IS NULL) and (validateduserid2 != (?) or validateduserid2 IS NULL) and (validateduserid3 != (?) or validateduserid3 IS NULL)",
-                [userId, userId, userId, userId]).fetchall()
+                "SELECT id FROM BLOCK WHERE mineruserid != (?) and verifiedblock != 1 and blockid != (select id from BLOCKVERIFY where validateUserId == (?)",
+                [userId, userId]).fetchall()
             txsList = self.getTxFeeBlock(availableBlockId)
             for a in availableBlockId:
                 if outputString == '':

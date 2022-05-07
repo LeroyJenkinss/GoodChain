@@ -8,6 +8,7 @@ from login import Login
 from signup import Signup
 from DbHashCheck import HashCheck
 from block import Block
+from transactions import Transactions
 
 
 def menu1():
@@ -17,7 +18,9 @@ def menu1():
     while count != 3:
         login = loginUser.tryLogIn()
         if login:
+            Transactions().setFalseTransactionToZero(loginUser.id)
             submenu1(loginUser)
+            return mainmenu()
         if count == 3:
             exit()
         if not login:
@@ -77,7 +80,7 @@ def mainmenu():
 def submenu1(loginUser):
     Block().verifyBlocks(loginUser.id)
     sub = Submenu(loginUser.id)
-    menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Log out")
+    menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Main menu")
     transferCoin = FunctionItem("Transfer Coins", sub.transferCoins, [loginUser.id])
     checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance, [loginUser.id])
     exploreTheChain = FunctionItem("Explore the Chain", sub.exploreTheChain, [loginUser.id])

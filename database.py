@@ -46,9 +46,7 @@ def main():
                                         blockhash TEXT,
                                         poolid integer references POOL,
                                         mineruserid referencing USERS,
-                                        validateduserid1 referencing USERS,
-                                        validateduserid2 referencing USERS,
-                                        validateduserid3 referencing USERS,
+                                        verifiedblock boolean,
                                         created TEXT
                                     ); """
 
@@ -73,6 +71,13 @@ def main():
                                                 transactionsig text
                                             ); """
 
+    sql_create_blockverify_table = """ CREATE TABLE IF NOT EXISTS BLOCKVERIFY (
+                                                    id INTEGER PRIMARY KEY,
+                                                    blockid integer references BLOCK,
+                                                    validateUserId references USER,
+                                                    Created TEXT
+                                                ); """
+
     # create a database connection
     conn = create_connection(database)
 
@@ -83,8 +88,7 @@ def main():
         create_table(conn, sql_create_block_table)
         create_table(conn, sql_create_pool_table)
         create_table(conn, sql_create_transactions_table)
-
-
+        create_table(conn, sql_create_blockverify_table)
 
     else:
         print("Error! cannot create the database connection.")
