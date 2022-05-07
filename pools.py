@@ -27,6 +27,16 @@ class Pools:
             values_to_insert = (False, str(datetime.now()), True)
             cur.execute(sqlStatement, values_to_insert)
             conn.commit()
+
+            sqlStatement = '''SELECT id from POOL WHERE poolfull = 0 and realpool = 1'''
+            cur.execute(sqlStatement)
+            poolid = cur.fetchone()
+
+            sqlStatement = '''insert into BLOCK (poolid, verifiedblock) VALUES (?,?)'''
+            values_to_insert2 = (poolid[0], False)
+            cur.execute(sqlStatement, values_to_insert2)
+            conn.commit()
+
         except Error as e:
             print(e)
         return self.getavailablePool()

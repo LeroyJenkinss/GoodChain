@@ -15,6 +15,7 @@ from hashlib import blake2b
 def sha256(message):
     return hashlib.sha256(str(message).encode('UTF-8')).hexdigest()
 
+
 def generate_keys():
     privateIn = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     private_key = privateIn.private_bytes(
@@ -27,6 +28,7 @@ def generate_keys():
         format=serialization.PublicFormat.SubjectPublicKeyInfo)
     return private_key, public_key
 
+
 def sign(transaction, private):
     private_key = load_pem_private_key(private, password=None)
     signature = private_key.sign(
@@ -38,3 +40,18 @@ def sign(transaction, private):
         hashes.SHA256())
     return signature
 
+
+def verify(message, signature, pbc_ser):
+    public_key = serialization.load_pem_public_key(pbc_ser)
+    try:
+        output = public_key.verify(
+            signature,
+            bytes(str(message), 'UTF-8'),
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256())
+        return True
+    except:
+        return False

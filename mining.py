@@ -1,6 +1,8 @@
-from GoodChain.balance import calculateBalanceUntilTransaction
+
 from database import *
 from transactions import Transactions
+from balance import Balance
+from tools import verify
 
 
 class Mining:
@@ -15,12 +17,17 @@ class Mining:
 
     def mine(self, minerId):
         self.MinerId = minerId
-        self.checkAvailablePools()
+        poolId = self.checkAvailablePools()
+        if poolId is not None:
+            print(f'this is poolid {poolId}')
+        else:
+            return
+
 
     def checkAvailablePools(self):
         choicepool = True
         try:
-            pools = cur.execute('''SELECT P.id from block as B LEFT JOIN Pool P on P.id = B.poolid WHERE poolfull = 1 and realpool = 1''').fetchall()
+            pools = cur.execute('''SELECT P.id from block as B LEFT JOIN Pool P on P.id = B.poolid WHERE  P.realpool = 1''').fetchall()
             for a in range(0, len(pools)):
                 if len(self.poolsString) == 0:
                     self.poolsString += str(pools[a][0])
@@ -34,7 +41,8 @@ class Mining:
                 mineChoice = input(f'Which of the following pools would you like to mine? {self.poolsString}: ')
                 if len(mineChoice) <= 2 and self.poolsString.__contains__(mineChoice):
                     choicepool = False
-                    self.fetchTransactions(mineChoice)
+
+                    return self.fetchTransactions(mineChoice)
                 else:
                     print('The given choice of pool was incorrect')
         except Error as e:
@@ -43,29 +51,34 @@ class Mining:
     def fetchTransactions(self, poolId):
         falseTransaction = []
         try:
-            transactionList = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?)", [poolId]).fetchall()
+            transactionList = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?) and falsetransaction == true || falsetransaction is NULL", [poolId]).fetchall()
+            print(f'this is the transList {transactionList}')
             for a in range(0, len(transactionList)):
                 balance = self.checkTransactions(transactionList[a][0], transactionList[a][1], transactionList[a][3],
                                                  transactionList[a][9])
                 if not balance:
                     Transactions().setFalseTransaction(transactionList[a][0])
                     falseTransaction.append(transactionList[a])
+            if len(falseTransaction) < 5:
+                return poolId
+            else:
+                print(f'This pool has more then 5 false transaction, which is too much')
+                return
+
                 # Hier moet gekeken worden naar de threshold voor aantal valse transacties
 
         except Error as e:
             print(e)
-
-        print(f'these are the false transactions: {falseTransaction}')
+        if len(falseTransaction) != 0:
+            print(f'these are the false transactions: {falseTransaction}')
 
     def checkTransactions(self, transactionId, senderId, txValue, transSig):
-        balance = calculateBalanceUntilTransaction(transactionId, self.MinerId)
-        return balance
+        valuesTransaction = False
+        if Balance().calculateBalanceUntilTransaction(transactionId, self.MinerId):
+            valuesTransaction = True
+        if not Transactions().verifyTransAction(transactionId, senderId, txValue, transSig):
+            valuesTransaction = False
+        return valuesTransaction
 
 
 
-# mine functie aanroepen met poolid
-# van die pool alle transactions checken
-# loop door transactions en elke transactie naar verifyu classmethod
-#
-#
-# falseTransactions = []

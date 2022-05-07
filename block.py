@@ -7,25 +7,24 @@ class Block:
         outputString = ""
         try:
             availableBlockId = cur.execute(
-                "SELECT id FROM BLOCK WHERE mineruserid != (?) and verifiedblock != 1 and blockid != (select id from BLOCKVERIFY where validateUserId == (?)",
-                [userId, userId]).fetchall()
+
+                "select B.id  from Block B left outer join BLOCKVERIFY BV on B.id = BV.blockid where b.mineruserid != (?) and b.verifiedblock == false and b.mineruserid != (?) and (bv.validateUserId != (?) or bv.validateUserId is null);", [userId, userId, userId]).fetchall()
             txsList = self.getTxFeeBlock(availableBlockId)
             for a in availableBlockId:
                 if outputString == '':
                     outputString += str(a[0])
                 else:
                     outputString += ', ' + str(a[0])
+            if len(outputString) != 0:
+                print(f'The following id numbers are from block that can be verified by you: {outputString}')
+                choice = input(f'Would you like to verify any of these blocks? (Y = yes N = no)')
+                if choice == 'Y':
+                    choiceloop = True
+                    while choiceloop:
+                        idchoice = input(f'Which block id would you like to verify?')
+                        if outputString.__contains__(idchoice):
+                            choiceloop = False
 
-            print(f'The following id numbers are from block that can be verified by you: {outputString}')
-            choice = input(f'Would you like to verify any of these blocks? (Y = yes N = no)')
-            if choice == 'Y':
-                choiceloop = True
-                while choiceloop:
-                    idchoice = input(f'Which block id would you like to verify?')
-                    if outputString.__contains__(idchoice):
-                        choiceloop = False
-                        pass
-                        # Hier moet ik een functie aanrroepen verify nadat ik minning gemaakt heb
 
 
         except Error as e:

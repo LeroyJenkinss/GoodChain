@@ -3,7 +3,7 @@ from database import *
 from GoodChain.pools import Pools
 from datetime import datetime
 from DbHashCheck import *
-from tools import sign
+from tools import sign, verify
 
 
 class Transactions:
@@ -92,7 +92,12 @@ class Transactions:
     def signtransaction(self, poolid):
         try:
             privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [self.Id]).fetchone()[0]
+            if str(self.amount)[len(str(self.amount))-2:] == '.0':
+                self.amount = int(str(self.amount)[0:len(str(self.amount))-2])
+            if str(self.transactionFee)[len(str(self.transactionFee))-2:] == '.0':
+                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee))-2])
             signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
+            print(f'this are the values in sign {self.sendToId}---{self.amount}--{self.transactionFee}--{poolid}')
             return sign(signdata, privatesig)
 
         except Error as e:
@@ -118,5 +123,23 @@ class Transactions:
 
         except Error as e:
             print(e)
+
+    def verifyTransAction(self,transactionId,senderId,txvalue,signature):
+
+        try:
+            recieverId =  cur.execute(f'select reciever from transactions where id = (?)', [transactionId]).fetchone()[0]
+            poolid = cur.execute(f'select poolid from transactions where id = (?)', [transactionId]).fetchone()[0]
+            transactionFee = cur.execute(f'select txfee from transactions where id = (?)', [transactionId]).fetchone()[0]
+            pubkeySender = cur.execute(f'select public_key from USERS where id = (?)', [senderId]).fetchone()[0]
+            signedData = [recieverId, txvalue, transactionFee, poolid]
+            return verify(signedData, signature, pubkeySender)
+        except Error as e:
+            print(e)
+
+
+
+
+
+
 
 

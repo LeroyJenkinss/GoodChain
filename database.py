@@ -46,7 +46,7 @@ def main():
                                         blockhash TEXT,
                                         poolid integer references POOL,
                                         mineruserid referencing USERS,
-                                        verifiedblock boolean,
+                                        verifiedblock boolean DEFAULT FALSE,
                                         created TEXT
                                     ); """
 
