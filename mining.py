@@ -23,7 +23,8 @@ class Mining:
         poolId = self.checkAvailablePools()
         if poolId is not None:
             previousBlock = Block().getLatestBlock()
-            if previousBlock[4] is None:
+            print(f'this is previousblock {previousBlock}')
+            if previousBlock[3] is None:
                 print(f'A block is already avialable for verifing')
                 return
             previousBlockHash = None
@@ -57,7 +58,7 @@ class Mining:
     def checkAvailablePools(self):
         choicepool = True
         try:
-            pools = cur.execute('''SELECT P.id from block as B LEFT JOIN Pool P on P.id = B.poolid WHERE  P.realpool = 1''').fetchall()
+            pools = cur.execute('''SELECT P.id from block as B LEFT JOIN Pool P on P.id = B.poolid WHERE  P.realpool = 1 and B.nonce IS null''').fetchall()
             for a in range(0, len(pools)):
                 if len(self.poolsString) == 0:
                     self.poolsString += str(pools[a][0])

@@ -50,18 +50,17 @@ class Block:
         return txList
 
     def getLatestBlock(self):
+        sql_statement = '''SELECT * FROM Block where verifiedblock != 0 order by 1 desc limit 1'''
         try:
-            latestBlock = cur.execute("SELECT * FROM BLOCK where verified != 0 ORDER BY 1 DESC LIMIT 1").fetchone()
-            print(f'this is the latest {latestBlock}')
+            cur.execute(sql_statement)
+            return cur.fetchone()
         except Error as e:
             print(e)
             return False
-        print('going back')
-        return latestBlock
 
     def CreateBlock(self, hash, nonce, minerId, poolId):
-        sql_statement = '''INSERT INTO Block (blockHash, nonce ,mineruserid, poolid, created) VALUES(?,?,?,?,?)'''
-        values_to_insert = (hash, nonce, minerId, poolId, str(datetime.now()))
+        sql_statement = '''INSERT INTO Block (blockHash, nonce ,mineruserid, poolid, created, pending) VALUES(?,?,?,?,?)'''
+        values_to_insert = (hash, nonce, minerId, poolId, str(datetime.now()), 1)
         try:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
@@ -70,6 +69,7 @@ class Block:
             print(e)
 
     def verifyBlock(self, block, userId):
+        block = self.getALlFromBlock(block)
         previousBlock = self.getLatestVerifiedBlock()
         previousBlockHash = None
         if previousBlock is not None:
@@ -81,6 +81,7 @@ class Block:
             digest += str(previousBlockHash)
         digest = sha256(digest)
         if digest == block[1]:
+            print('going')
             self.createNewBlockVerify(block[0], userId, 1)
             Transactions().createTransAction2(1, userId, int(Pools().GetPoolTransactions(block[3])[0]) + 50, 0, 1,
                                               'miningreward')
@@ -97,11 +98,36 @@ class Block:
         return cur.fetchone()
 
     def createNewBlockVerify(self, blockId, userId, blockCorrect):
-        sql_statement = '''INSERT INTO BlockCheck (BlockId, validatedUserId ,Created, BlockCorrect) VALUES(?,?,?,?)'''
+        sql_statement = '''INSERT INTO BLOCKVERIFY (BlockId, validateUserId ,Created, BlockCorrect) VALUES(?,?,?,?)'''
         values_to_insert = (blockId, userId, str(datetime.now()), blockCorrect)
         try:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
             print('Block has been verified.')
+
+            if blockCorrect == 1:
+                self.checkIfBlockVerified3Times(blockId)
         except Error as e:
             print(e)
+
+    def getALlFromBlock(self, blockId):
+        try:
+            block = cur.execute("SELECT * FROM BLOCK where id = (?)", [blockId]).fetchone()
+            print(f'this is block {block}')
+        except Error as e:
+            print(e)
+        return block
+
+    def checkIfBlockVerified3Times(self, blockId):
+        try:
+            timesVerified = cur.execute(
+                "select count(validateUserId) from BLOCKVERIFY as BV left join BLOCK B on B.id = BV.blockid where blockid = (?)",
+                [blockId]).fetchall()
+            print(f'this is block {timesVerified}')
+            if len(timesVerified) >= 2:
+                cur.execute('''UPDATE BLOCK set pending=:pending WHERE id=:id , {"pending": 0, "id": blockId}''')
+                conn.commit()
+        except Error as e:
+            print(e)
+
+        return

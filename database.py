@@ -48,6 +48,7 @@ def main():
                                         mineruserid referencing USERS,
                                         verifiedblock boolean DEFAULT FALSE,
                                         nonce INTEGER,
+                                        pending boolean,
                                         created TEXT
                                     ); """
 

@@ -33,7 +33,7 @@ class Pools:
             poolid = cur.fetchone()
 
             sqlStatement = '''insert into BLOCK (poolid, verifiedblock, created, blockhash) VALUES (?,?,?,?)'''
-            values_to_insert2 = (poolid[0], False, datetime.now(), 'genesisblock')
+            values_to_insert2 = (1, False, datetime.now(), 'genesisblock')
             cur.execute(sqlStatement, values_to_insert2)
             conn.commit()
 
@@ -119,6 +119,7 @@ class Pools:
         return
 
     def GetPoolTransactions(self, poolId):
+        print(f'this is poolid {poolId}')
         sql_statement = '''SELECT * from POOl as P left join TRANSACTIONS T on P.Id = T.PoolId WHERE P.Id = poolId'''
         try:
             cur.execute(sql_statement)

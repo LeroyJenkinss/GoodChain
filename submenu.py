@@ -36,8 +36,8 @@ class Submenu:
     def checkThePool(self):
         Pools().checkPool()
 
-    def cancelTransaction(self):
-        pass
+    def cancelTransaction(self, userId):
+        Transactions().cancelTransaction(userId)
 
     def mineBlock(self, minerId):
         Mining().mine(minerId)
