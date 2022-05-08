@@ -24,11 +24,11 @@ class Mining:
         if poolId is not None:
             previousBlock = Block().getLatestBlock()
             print(f'this is previousblock {previousBlock}')
-            if previousBlock[3] is None:
-                print(f'A block is already avialable for verifing')
-                return
             previousBlockHash = None
             if previousBlock is not None:
+                if previousBlock[3] is None:
+                    print(f'A block is already avialable for verifing')
+                    return
                 blockDate = datetime.strptime(previousBlock[6], '%Y-%m-%d %H:%M:%S.%f')
 
                 if blockDate > (datetime.now() - timedelta(minutes=3)):
@@ -58,16 +58,19 @@ class Mining:
     def checkAvailablePools(self):
         choicepool = True
         try:
-            pools = cur.execute('''SELECT P.id from block as B LEFT JOIN Pool P on P.id = B.poolid WHERE  P.realpool = 1 and B.nonce IS null''').fetchall()
+            # pools = cur.execute('''SELECT P.id from block as B LEFT JOIN Pool P on P.id = B.poolid WHERE  P.realpool = 1 and B.nonce IS null''').fetchall()
+            pools = cur.execute('''SELECT P.Id from Pool as P LEFT JOIN Block B on P.Id = B.PoolId where PoolFull = 1
+                                    EXCEPT
+                                    SELECT P.Id from Block as B LEFT JOIN Pool P on P.Id = B.PoolId where PoolFull = 1''').fetchall()
+
             for a in range(0, len(pools)):
                 if len(self.poolsString) == 0:
                     self.poolsString += str(pools[a][0])
                 else:
                     self.poolsString += f', {str(pools[a][0])}'
-
             while choicepool:
                 if len(self.poolsString) == 0:
-                    print('There are no pools avialable to mine')
+                    print('There are insufficient transactions in pools to start mining')
                     return
                 mineChoice = input(f'Which of the following pools would you like to mine? {self.poolsString}: ')
                 if len(mineChoice) <= 2 and self.poolsString.__contains__(mineChoice):

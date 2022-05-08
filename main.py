@@ -81,7 +81,7 @@ def mainmenu():
 def submenu1(loginUser):
     Block().verifyBlocks(loginUser.id)
     sub = Submenu(loginUser.id)
-    menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Main menu")
+    menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Log off")
     transferCoin = FunctionItem("Transfer Coins", sub.transferCoins, [loginUser.id])
     checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance, [loginUser.id])
     exploreTheChain = FunctionItem("Explore the Chain", sub.exploreTheChain)

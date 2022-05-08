@@ -28,15 +28,6 @@ class Pools:
             cur.execute(sqlStatement, values_to_insert)
             conn.commit()
 
-            sqlStatement = '''SELECT id from POOL WHERE poolfull = 0 and realpool = 1'''
-            cur.execute(sqlStatement)
-            poolid = cur.fetchone()
-
-            sqlStatement = '''insert into BLOCK (poolid, verifiedblock, created, blockhash) VALUES (?,?,?,?)'''
-            values_to_insert2 = (1, False, datetime.now(), 'genesisblock')
-            cur.execute(sqlStatement, values_to_insert2)
-            conn.commit()
-
         except Error as e:
             print(e)
         return self.getavailablePool()
@@ -53,7 +44,7 @@ class Pools:
 
     def setPool2Full(self, poolid):
         try:
-            cur.execute('''UPDATE pool set poolfull=:poolfull WHERE id=:id , {"poolfull": 1, "id": poolid}''')
+            cur.execute("UPDATE pool set poolfull = 1 WHERE id = (?) ", [poolid])
             conn.commit()
         except Error as e:
             print(e)

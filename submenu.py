@@ -20,6 +20,7 @@ class Submenu:
             senderName = input('Pls give the name of the person you would like to send coins: ')
             if not transaction.validTransaction(self.id, senderName):
                 count += 1
+                print(f'Username does not exist')
                 if count == 3:
                     return
             else:

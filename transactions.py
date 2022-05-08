@@ -36,13 +36,18 @@ class Transactions:
         count = 0
         while count != 3:
             transferValue = input('Plz state the amount you would like to transfer, it must be a decimal number: ')
-            if isinstance(float(transferValue), float):
+            if any(chr.isdigit() for chr in transferValue) and isinstance(float(transferValue), float) and float(transferValue) > 0:
                 self.amount = transferValue
                 self.createTransAction(float(transferValue))
-                count = 3
+                return
+            elif transferValue[0:1] == '-' or transferValue == '0':
+                self.amount = 0.0
+                print(f'The requested amount is less then or is 0 coin')
+                self.createTransAction(self.amount)
+                return
             else:
                 count += 1
-                print(f'The amount is not a decimal number you have {3 - count} try remaining')
+                print(f'The amount is not a decimal number you can try {3 - count} try remaining')
         return
 
     def createTransAction(self, value):
@@ -55,8 +60,19 @@ class Transactions:
                 self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
+
             HashCheck().writeHashtransaction()
+            try:
+                poolCount = cur.execute("select count(id) from transactions where poolid = (?)", [poolId]).fetchone()
+            except Error as e:
+                print(e)
+
+            if poolCount[0] >= 10:
+                print(f'this is the pool {poolId}')
+                Pools().setPool2Full(poolId)
+
         except Error as e:
+            print("hier0")
             print(e)
 
     def newUserInsert(self, userName):
@@ -96,7 +112,6 @@ class Transactions:
             if str(self.transactionFee)[len(str(self.transactionFee))-2:] == '.0':
                 self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee))-2])
             signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
-            print(f'this are the values in sign {self.sendToId}---{self.amount}--{self.transactionFee}--{poolid}')
             return sign(signdata, privatesig)
 
         except Error as e:

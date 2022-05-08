@@ -59,12 +59,13 @@ class Block:
             return False
 
     def CreateBlock(self, hash, nonce, minerId, poolId):
-        sql_statement = '''INSERT INTO Block (blockHash, nonce ,mineruserid, poolid, created, pending) VALUES(?,?,?,?,?)'''
+        sql_statement = '''INSERT INTO Block (blockHash, nonce ,mineruserid, poolid, created, pending) VALUES(?,?,?,?,?,?)'''
         values_to_insert = (hash, nonce, minerId, poolId, str(datetime.now()), 1)
         try:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
             print('Block has been added.')
+            return
         except Error as e:
             print(e)
 
@@ -81,7 +82,6 @@ class Block:
             digest += str(previousBlockHash)
         digest = sha256(digest)
         if digest == block[1]:
-            print('going')
             self.createNewBlockVerify(block[0], userId, 1)
             Transactions().createTransAction2(1, userId, int(Pools().GetPoolTransactions(block[3])[0]) + 50, 0, 1,
                                               'miningreward')
