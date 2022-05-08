@@ -84,7 +84,7 @@ def submenu1(loginUser):
     menu = ConsoleMenu(f'UserName: {loginUser.userName}', "Welcome to the goodChain Node", exit_option_text="Main menu")
     transferCoin = FunctionItem("Transfer Coins", sub.transferCoins, [loginUser.id])
     checkTheBalance = FunctionItem("Check the Balance", sub.checkTheBalance, [loginUser.id])
-    exploreTheChain = FunctionItem("Explore the Chain", sub.exploreTheChain, [loginUser.id])
+    exploreTheChain = FunctionItem("Explore the Chain", sub.exploreTheChain)
     checkThePool = FunctionItem("Check the pool", sub.checkThePool)
     cancelTransaction = FunctionItem("Cancel a transaction", sub.cancelTransaction, [loginUser.id])
     mineBlock = FunctionItem("Mine a Block", sub.mineBlock, [loginUser.id])

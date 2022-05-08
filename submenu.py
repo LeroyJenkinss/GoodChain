@@ -4,6 +4,7 @@ from GoodChain.transactions import Transactions
 from GoodChain.balance import Balance
 from GoodChain.pools import Pools
 from mining import Mining
+from block import Block
 
 
 class Submenu:
@@ -31,7 +32,7 @@ class Submenu:
         print(f'Your balance is currently: {Balance().returnBalance(id)}')
 
     def exploreTheChain(self):
-        pass
+        Block().exploreTheChain()
 
     def checkThePool(self):
         Pools().checkPool()

@@ -79,8 +79,6 @@ class Pools:
 
             poolnum = input(
                 f'We have {len(toCheckTransId)} pools pls typ in the id of the pool you would like to see: ')
-
-
         except Error as e:
             print(e)
 
