@@ -110,8 +110,7 @@ class Pools:
         return
 
     def GetPoolTransactions(self, poolId):
-        print(f'this is poolid {poolId}')
-        sql_statement = '''SELECT * from POOl as P left join TRANSACTIONS T on P.Id = T.PoolId WHERE P.Id = poolId'''
+        sql_statement = f'''SELECT T.* from Transactions as T left join Pool P on P.Id = T.PoolId WHERE T.poolid = {poolId} and t.falsetransaction = 0 or t.falsetransaction is null and t.txvalue != 0'''
         try:
             cur.execute(sql_statement)
         except Error as e:

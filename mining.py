@@ -98,16 +98,15 @@ class Mining:
                 print(f'This pool has more then 5 false transaction, which is too much')
                 return
 
-                # Hier moet gekeken worden naar de threshold voor aantal valse transacties
-
         except Error as e:
             print(e)
         if len(falseTransaction) != 0:
             print(f'these are the false transactions: {falseTransaction}')
+            return
 
     def checkTransactions(self, transactionId, senderId, txValue, transSig):
         valuesTransaction = False
-        if Balance().calculateBalanceUntilTransaction(transactionId, self.MinerId):
+        if Balance().calculateBalanceUntilTransaction(transactionId, senderId):
             valuesTransaction = True
         if not Transactions().verifyTransAction(transactionId, senderId, txValue, transSig):
             valuesTransaction = False

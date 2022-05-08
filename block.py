@@ -3,6 +3,7 @@ from datetime import datetime
 from pools import Pools
 from tools import sha256
 from transactions import Transactions
+from blockmining import Blockmining
 
 
 class Block:
@@ -11,7 +12,7 @@ class Block:
         outputString = ""
         try:
             availableBlockId = cur.execute(
-                "select B.id  from Block B left outer join BLOCKVERIFY BV on B.id = BV.blockid where b.mineruserid != (?) and b.verifiedblock == false and b.mineruserid != (?) and (bv.validateUserId != (?) or bv.validateUserId is null);",
+                "select DISTINCT B.id  from Block B left outer join BLOCKVERIFY BV on B.id = BV.blockid where b.mineruserid != (?) and b.verifiedblock == false and b.mineruserid != (?) and (bv.validateUserId != (?) or bv.validateUserId is null);",
                 [userId, userId, userId]).fetchall()
             txsList = self.getTxFeeBlock(availableBlockId)
             for a in availableBlockId:
@@ -20,15 +21,17 @@ class Block:
                 else:
                     outputString += ', ' + str(a[0])
             if len(outputString) != 0:
-                print(f'The following id numbers are from block that can be verified by you: {outputString}')
+                print(f'The following id numbers are from a block that can be verified by you: {outputString}')
                 choice = input(f'Would you like to verify any of these blocks? (Y = yes N = no)')
                 if choice == 'Y':
                     choiceloop = True
                     while choiceloop:
-                        idchoice = input(f'Which block id would you like to verify?')
+                        idchoice = input(f'Which block id would you like to verify? ')
                         if outputString.__contains__(idchoice):
                             choiceloop = False
                             self.verifyBlock(idchoice, userId)
+                else:
+                    return
 
 
 
@@ -71,17 +74,20 @@ class Block:
 
     def verifyBlock(self, block, userId):
         block = self.getALlFromBlock(block)
+        checkTransactions = Blockmining().fetchTransactions2(block[2])
         previousBlock = self.getLatestVerifiedBlock()
         previousBlockHash = None
         if previousBlock is not None:
             print(f'previousblock {previousBlock}')
             previousBlockHash = previousBlock[1]
         data = Pools().GetPoolTransactions(block[2])
+        print(f'this is the data {data}')
         digest = str(data) + str(block[2])
         if previousBlockHash is not None:
             digest += str(previousBlockHash)
         digest = sha256(digest)
-        if digest == block[1]:
+        print(f'this is digest {digest } and this is block[1] {block[1]}')
+        if digest == block[1] and checkTransactions != False:
             self.createNewBlockVerify(block[0], userId, 1)
             Transactions().createTransAction2(1, userId, int(Pools().GetPoolTransactions(block[3])[0]) + 50, 0, 1,
                                               'miningreward')
@@ -113,17 +119,19 @@ class Block:
     def getALlFromBlock(self, blockId):
         try:
             block = cur.execute("SELECT * FROM BLOCK where id = (?)", [blockId]).fetchone()
-            print(f'this is block {block}')
+
+            return block
         except Error as e:
             print(e)
-        return block
+            print('wtf')
+
+
 
     def checkIfBlockVerified3Times(self, blockId):
         try:
             timesVerified = cur.execute(
                 "select count(validateUserId) from BLOCKVERIFY as BV left join BLOCK B on B.id = BV.blockid where blockid = (?)",
                 [blockId]).fetchall()
-            print(f'this is block {timesVerified}')
             if len(timesVerified) >= 2:
                 cur.execute('''UPDATE BLOCK set pending=:pending WHERE id=:id , {"pending": 0, "id": blockId}''')
                 conn.commit()
@@ -157,23 +165,11 @@ class Block:
 
         if PoolIdChoice in idstr:
             try:
-                requestedPooltransactions = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?)", [PoolIdChoice]).fetchall()
+                requestedPooltransactions = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?)",
+                                                        [PoolIdChoice]).fetchall()
                 if len(requestedPooltransactions) == 0:
                     print(f'The pool with id {PoolIdChoice} is empty')
                 Pools().showTransactionsOfPool(requestedPooltransactions)
                 return
             except Error as e:
                 print(e)
-
-
-
-
-
-
-
-
-
-
-
-
-

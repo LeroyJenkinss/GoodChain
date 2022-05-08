@@ -60,7 +60,6 @@ class Transactions:
                 self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
-
             HashCheck().writeHashtransaction()
             try:
                 poolCount = cur.execute("select count(id) from transactions where poolid = (?)", [poolId]).fetchone()
@@ -170,6 +169,7 @@ class Transactions:
         falseparlist = cur.execute(f'select T.id, t.sender, t.reciever, t.txvalue from Transactions T left join Pool P on P.Id = T.PoolId left join '
                                    f'(select * from Block B where B.pending = 0 and B.verifiedblock = 0  order by verifiedblock limit 1)'
                                    f' as B on P.Id = B.PoolId where B.PoolId != 0 and T.Sender = :userId', [userId]).fetchall()
+        print(f'this is list {falseparlist}')
         if len(falseparlist) > 0:
             for a in range(0, len(falseparlist)):
                 idstr += f'{str(falseparlist[a][0])}'
