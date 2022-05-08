@@ -1,4 +1,4 @@
-from GoodChain.tools import verify
+from tools import verify
 from transactions import Transactions
 from balance import Balance
 from database import *

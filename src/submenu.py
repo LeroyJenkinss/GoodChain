@@ -1,8 +1,8 @@
 from database import *
-import main
-from GoodChain.transactions import Transactions
-from GoodChain.balance import Balance
-from GoodChain.pools import Pools
+import goodchain
+from transactions import Transactions
+from balance import Balance
+from pools import Pools
 from mining import Mining
 from block import Block
 

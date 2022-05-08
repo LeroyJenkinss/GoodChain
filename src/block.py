@@ -81,16 +81,23 @@ class Block:
             print(f'previousblock {previousBlock}')
             previousBlockHash = previousBlock[1]
         data = Pools().GetPoolTransactions(block[2])
-        print(f'this is the data {data}')
-        digest = str(data) + str(block[2])
+
+        digest = str(data) + str(block[5])
+        print(f'this is the block1 {digest}')
         if previousBlockHash is not None:
             digest += str(previousBlockHash)
         digest = sha256(digest)
         print(f'this is digest {digest } and this is block[1] {block[1]}')
         if digest == block[1] and checkTransactions != False:
             self.createNewBlockVerify(block[0], userId, 1)
-            Transactions().createTransAction2(1, userId, int(Pools().GetPoolTransactions(block[3])[0]) + 50, 0, 1,
+            amountBlockVerified = int(self.getAmountBlockVerified(block[0])[0])
+            if amountBlockVerified == 3:
+                Transactions().createTransAction2(1, userId, int(Transactions().GetPoolTransactionFees(block[2])[0]) + 50, 0, 1,
                                               'miningreward')
+
+
+
+
         else:
             print('block is not correct')
             self.createNewBlockVerify(block[0], userId, 0)
@@ -173,3 +180,12 @@ class Block:
                 return
             except Error as e:
                 print(e)
+
+    def getAmountBlockVerified(self, blockId):
+        sql_statement = 'SELECT count(*) from blockverify where BlockId = :blockId and BlockCorrect = 1'
+        try:
+            cur.execute(sql_statement, {"blockId": blockId})
+            return cur.fetchone()
+        except Error as e:
+            print(e)
+            return False

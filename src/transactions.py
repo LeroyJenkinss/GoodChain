@@ -1,6 +1,6 @@
-import main
+import goodchain
 from database import *
-from GoodChain.pools import Pools
+from pools import Pools
 from datetime import datetime
 from DbHashCheck import *
 from tools import sign, verify
@@ -105,7 +105,23 @@ class Transactions:
 
     def signtransaction(self, poolid):
         try:
+            print(f'this is self.id {self.Id}')
             privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [self.Id]).fetchone()[0]
+            if str(self.amount)[len(str(self.amount))-2:] == '.0':
+                self.amount = int(str(self.amount)[0:len(str(self.amount))-2])
+            if str(self.transactionFee)[len(str(self.transactionFee))-2:] == '.0':
+                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee))-2])
+            signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
+            return sign(signdata, privatesig)
+
+        except Error as e:
+            print(e)
+
+    def signtransaction2(self, poolid, userid):
+        try:
+            print(f'this is self.id {self.Id}')
+            print(f'this is self.id {userid}')
+            privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [userid]).fetchone()[0]
             if str(self.amount)[len(str(self.amount))-2:] == '.0':
                 self.amount = int(str(self.amount)[0:len(str(self.amount))-2])
             if str(self.transactionFee)[len(str(self.transactionFee))-2:] == '.0':
@@ -150,12 +166,12 @@ class Transactions:
             print(e)
 
     def createTransAction2(self, fakeuser, recieverId, txValue, txFee, poolId, signature):
-        poolId = Pools().getavailablePool()[0]
         try:
-            signedTransaction = self.signtransaction(poolId)
+            print(f'this is poolid {poolId}')
+            signedTransaction = self.signtransaction2(poolId, recieverId)
             sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created, transactionsig) VALUES (?,?,?,?,?,?,?)'''
             values_to_insert = (
-                self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
+                fakeuser, recieverId, txValue, txFee, poolId, datetime.now(), signature)
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
             HashCheck().writeHashtransaction()
@@ -197,8 +213,14 @@ class Transactions:
                     print(f'Your an idiot pls stop using this application')
                     return
 
-
-
+    def GetPoolTransactionFees(self, poolId):
+        sql_statement = f'''SELECT count(TxFee) from Pool as P left join Transactions T on P.Id = T.PoolId WHERE P.Id = {poolId} and T.FalseTransaction = 0 and TxValue != 0'''
+        try:
+            cur.execute(sql_statement)
+        except Error as e:
+            print(e)
+            return False
+        return cur.fetchone()
 
 
 
