@@ -43,12 +43,13 @@ class Submenu:
         Mining().mine(minerId)
 
     def showPublicKey(self, userId):
-        print(userId)
         try:
             pkey = cur.execute(f'select public_key from USERS where id = (?)', [userId]).fetchone()
             print(f'this is your public key: {pkey[0]}')
+
         except Error as e:
             print(e)
+        return
 
     def showPrivateKey(self, userId):
         try:
@@ -56,4 +57,5 @@ class Submenu:
             print(f'this is your private key: {pkey[0]}')
         except Error as e:
             print(e)
+        return
 

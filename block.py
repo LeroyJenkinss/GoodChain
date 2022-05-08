@@ -131,3 +131,49 @@ class Block:
             print(e)
 
         return
+
+    def exploreTheChain(self):
+        blockString = ''
+        idstr = []
+        try:
+            blockList = cur.execute("select * from BLOCK").fetchall()
+        except Error as e:
+            print(e)
+            return
+
+        if len(blockList) > 0:
+            for a in range(0, len(blockList)):
+                idstr.append(blockList[a][2])
+                blockString += f'\nThe block Id = {str(blockList[a][0])}, '
+                blockString += f'\nThe block Hash = {str(blockList[a][1])}, '
+                blockString += f'\nThe block poolid = {str(blockList[a][2])}, '
+                blockString += f'\nThe block mineruserid = {str(blockList[a][3])}, '
+                blockString += f'\nThe block verifiedblock = {str(blockList[a][4])}, '
+                blockString += f'\nThe block nonce = {str(blockList[a][5])}, '
+                blockString += f'\nThe block was created at = {str(blockList[a][6])}, '
+                blockString += f'\nThe block pending state = {str(blockList[a][7])}\n'
+        print(f'{blockString}')
+        PoolIdChoice = int(input(f'Which of the above mentioned pool\'s (poolId) would you look into? : '))
+
+        if PoolIdChoice in idstr:
+            try:
+                requestedPooltransactions = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?)", [PoolIdChoice]).fetchall()
+                if len(requestedPooltransactions) == 0:
+                    print(f'The pool with id {PoolIdChoice} is empty')
+                Pools().showTransactionsOfPool(requestedPooltransactions)
+                return
+            except Error as e:
+                print(e)
+
+
+
+
+
+
+
+
+
+
+
+
+

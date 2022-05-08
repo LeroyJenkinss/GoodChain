@@ -32,7 +32,8 @@ def menu1():
 
 
 def menu2():
-    pass
+    Block().exploreTheChain()
+    mainmenu()
 
 
 def menu3():

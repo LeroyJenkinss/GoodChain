@@ -60,26 +60,27 @@ class Pools:
         return
 
     def newUserPool(self):
-            sqlstatement = '''select id from POOL where realpool = 0'''
-            nullcheck = cur.execute(sqlstatement).fetchone()
-            if nullcheck is None:
-
-                sqlstatement = '''insert into POOL (poolfull, created, realpool, verified) VALUES (?,?,?,?)'''
-                values_to_insert = (False, datetime.now(), False, False)
-                cur.execute(sqlstatement, values_to_insert)
-                conn.commit()
+        sqlstatement = '''select id from POOL where realpool = 0'''
+        nullcheck = cur.execute(sqlstatement).fetchone()
+        if nullcheck is None:
+            sqlstatement = '''insert into POOL (poolfull, created, realpool, verified) VALUES (?,?,?,?)'''
+            values_to_insert = (False, datetime.now(), False, False)
+            cur.execute(sqlstatement, values_to_insert)
+            conn.commit()
 
     def checkPool(self):
         global poolnum
         try:
-            cur.execute('''SELECT id from POOL where id != (select poolid from BLOCK) and verified = false and realpool = true''')
+            cur.execute(
+                '''SELECT id from POOL where realpool = true''')
             toCheckTransId = cur.fetchall()
             for a in toCheckTransId:
                 print(f'These are the Pool id numbers:{a[0]}')
 
-            poolnum = input(f'We have {len(toCheckTransId)} pools pls typ in the id of the pool you would like to see: ')
+            poolnum = input(
+                f'We have {len(toCheckTransId)} pools pls typ in the id of the pool you would like to see: ')
 
-# Hiermee moet ik de transaction ophalen uit de pool om deze te bekijken
+
         except Error as e:
             print(e)
 
@@ -91,9 +92,7 @@ class Pools:
         except Error as e:
             print(e)
 
-
-
-    def showTransactionsOfPool(self,pool):
+    def showTransactionsOfPool(self, pool):
         senderList = []
         recieverList = []
         amounts = []
@@ -101,21 +100,24 @@ class Pools:
             for i in range(0, len(transaction)):
                 if i == 1:
                     try:
-                       senderName = cur.execute("SELECT username FROM USERS WHERE id = (?)", [transaction[i]]).fetchone()[0]
-                       senderList.append(senderName)
+                        senderName = \
+                        cur.execute("SELECT username FROM USERS WHERE id = (?)", [transaction[i]]).fetchone()[0]
+                        senderList.append(senderName)
                     except Error as e:
-                       print(e)
+                        print(e)
                 if i == 2:
                     try:
-                       recieverName = cur.execute("SELECT username FROM USERS WHERE id = (?)", [transaction[i]]).fetchone()[0]
-                       recieverList.append(recieverName)
+                        recieverName = \
+                        cur.execute("SELECT username FROM USERS WHERE id = (?)", [transaction[i]]).fetchone()[0]
+                        recieverList.append(recieverName)
                     except Error as e:
-                       print(e)
+                        print(e)
                 if i == 3:
                     amounts.append(transaction[i])
 
         for a in range(0, len(senderList)):
-            print(f'Transaction {a+1} in pool with ID {poolnum}: Sender {senderList[a]} transferred {amounts[a]} to reciever {recieverList[a]}')
+            print(
+                f'Transaction {a + 1} in pool with ID {pool[0][5]}: Sender {senderList[a]} transferred {amounts[a]} to reciever {recieverList[a]}')
         return
 
     def GetPoolTransactions(self, poolId):
@@ -127,9 +129,3 @@ class Pools:
             print(e)
             return False
         return cur.fetchone()
-
-
-
-
-
-
