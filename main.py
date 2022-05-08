@@ -87,12 +87,16 @@ def submenu1(loginUser):
     checkThePool = FunctionItem("Check the pool", sub.checkThePool)
     cancelTransaction = FunctionItem("Cancel a transaction", sub.cancelTransaction, [loginUser.id])
     mineBlock = FunctionItem("Mine a Block", sub.mineBlock, [loginUser.id])
+    showPublicKey = FunctionItem("Show your publickey", sub.showPublicKey, [loginUser.id])
+    showPrivateKey = FunctionItem("Show your privateKey", sub.showPrivateKey, [loginUser.id])
     menu.append_item(transferCoin)
     menu.append_item(checkTheBalance)
     menu.append_item(exploreTheChain)
     menu.append_item(checkThePool)
     menu.append_item(cancelTransaction)
     menu.append_item(mineBlock)
+    menu.append_item(showPublicKey)
+    menu.append_item(showPrivateKey)
     menu.show()
 
 
