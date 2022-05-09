@@ -67,9 +67,12 @@ class Pools:
             toCheckTransId = cur.fetchall()
             for a in toCheckTransId:
                 print(f'These are the Pool id numbers:{a[0]}')
-
-            poolnum = input(
-                f'We have {len(toCheckTransId)} pools pls typ in the id of the pool you would like to see: ')
+            if len(toCheckTransId) == 0:
+                print(f'There are no pools available for you to check')
+                return
+            else:
+                poolnum = input(
+                    f'We have {len(toCheckTransId)} pools pls typ in the id of the pool you would like to see: ')
         except Error as e:
             print(e)
 
@@ -80,6 +83,7 @@ class Pools:
             self.showTransactionsOfPool(requestedPool)
         except Error as e:
             print(e)
+        return
 
     def showTransactionsOfPool(self, pool):
         senderList = []
@@ -106,7 +110,7 @@ class Pools:
 
         for a in range(0, len(senderList)):
             print(
-                f'Transaction {a + 1} in pool with ID {pool[0][5]}: Sender {senderList[a]} transferred {amounts[a]} to reciever {recieverList[a]}')
+                f'Transaction {a + 1} in pool with ID {pool[0][5]}: Sender {senderList[a]} transferred {amounts[a]} coin to reciever {recieverList[a]}')
         return
 
     def GetPoolTransactions(self, poolId):
