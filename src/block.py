@@ -168,7 +168,11 @@ class Block:
                 blockString += f'\nThe block was created at = {str(blockList[a][6])}, '
                 blockString += f'\nThe block pending state = {str(blockList[a][7])}\n'
         print(f'{blockString}')
-        PoolIdChoice = int(input(f'Which of the above mentioned pool\'s (poolId) would you look into? : '))
+        if len(blockList) > 0:
+            PoolIdChoice = int(input(f'Which of the above mentioned pool\'s (poolId) would you look into? : '))
+        else:
+            print(f'There are no available blocks for you to Explore')
+            return
 
         if PoolIdChoice in idstr:
             try:
