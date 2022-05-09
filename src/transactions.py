@@ -36,7 +36,8 @@ class Transactions:
         count = 0
         while count != 3:
             transferValue = input('Plz state the amount you would like to transfer, it must be a decimal number: ')
-            if any(chr.isdigit() for chr in transferValue) and isinstance(float(transferValue), float) and float(transferValue) > 0:
+            if any(chr.isdigit() for chr in transferValue) and isinstance(float(transferValue), float) and float(
+                    transferValue) > 0:
                 self.amount = transferValue
                 self.createTransAction(float(transferValue))
                 return
@@ -107,10 +108,10 @@ class Transactions:
         try:
             print(f'this is self.id {self.Id}')
             privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [self.Id]).fetchone()[0]
-            if str(self.amount)[len(str(self.amount))-2:] == '.0':
-                self.amount = int(str(self.amount)[0:len(str(self.amount))-2])
-            if str(self.transactionFee)[len(str(self.transactionFee))-2:] == '.0':
-                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee))-2])
+            if str(self.amount)[len(str(self.amount)) - 2:] == '.0':
+                self.amount = int(str(self.amount)[0:len(str(self.amount)) - 2])
+            if str(self.transactionFee)[len(str(self.transactionFee)) - 2:] == '.0':
+                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee)) - 2])
             signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
             return sign(signdata, privatesig)
 
@@ -122,10 +123,10 @@ class Transactions:
             print(f'this is self.id {self.Id}')
             print(f'this is self.id {userid}')
             privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [userid]).fetchone()[0]
-            if str(self.amount)[len(str(self.amount))-2:] == '.0':
-                self.amount = int(str(self.amount)[0:len(str(self.amount))-2])
-            if str(self.transactionFee)[len(str(self.transactionFee))-2:] == '.0':
-                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee))-2])
+            if str(self.amount)[len(str(self.amount)) - 2:] == '.0':
+                self.amount = int(str(self.amount)[0:len(str(self.amount)) - 2])
+            if str(self.transactionFee)[len(str(self.transactionFee)) - 2:] == '.0':
+                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee)) - 2])
             signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
             return sign(signdata, privatesig)
 
@@ -143,8 +144,11 @@ class Transactions:
 
     def setFalseTransactionToZero(self, userId):
         try:
-            falseparlist = cur.execute(f'select id from transactions where sender = (?) and falsetransaction = 1 and txvalue != 0', [userId]).fetchall()
-            cur.execute(f'UPDATE transactions set txvalue = 0, txfee = 0 where falsetransaction = 1 and sender = (?)', [userId])
+            falseparlist = cur.execute(
+                f'select id from transactions where sender = (?) and falsetransaction = 1 and txvalue != 0',
+                [userId]).fetchall()
+            cur.execute(f'UPDATE transactions set txvalue = 0, txfee = 0 where falsetransaction = 1 and sender = (?)',
+                        [userId])
             conn.commit()
             if len(falseparlist) > 0:
                 print(f'The following transactions have been set to zero, due to not being valid {falseparlist}')
@@ -153,12 +157,13 @@ class Transactions:
         except Error as e:
             print(e)
 
-    def verifyTransAction(self,transactionId,senderId,txvalue,signature):
+    def verifyTransAction(self, transactionId, senderId, txvalue, signature):
 
         try:
-            recieverId =  cur.execute(f'select reciever from transactions where id = (?)', [transactionId]).fetchone()[0]
+            recieverId = cur.execute(f'select reciever from transactions where id = (?)', [transactionId]).fetchone()[0]
             poolid = cur.execute(f'select poolid from transactions where id = (?)', [transactionId]).fetchone()[0]
-            transactionFee = cur.execute(f'select txfee from transactions where id = (?)', [transactionId]).fetchone()[0]
+            transactionFee = cur.execute(f'select txfee from transactions where id = (?)', [transactionId]).fetchone()[
+                0]
             pubkeySender = cur.execute(f'select public_key from USERS where id = (?)', [senderId]).fetchone()[0]
             signedData = [recieverId, txvalue, transactionFee, poolid]
             return verify(signedData, signature, pubkeySender)
@@ -178,14 +183,15 @@ class Transactions:
         except Error as e:
             print(e)
 
-    def cancelTransaction(self,userId):
+    def cancelTransaction(self, userId):
         allUserTransactions = ''
         idstr = ''
         tryagain = True
-        # falseparlist = cur.execute(f'select T.id, t.sender, t.reciever, t.txvalue from Transactions T left join Pool P on P.Id = T.PoolId left join '
-        #                            f'(select * from Block B where B.pending = 0 and B.verifiedblock = 0  order by verifiedblock limit 1)'
-        #                            f' as B on P.Id = B.PoolId where B.PoolId != 0 and T.Sender = :userId', [userId]).fetchall()
-        falseparlist = cur.execute('select T.* from TRANSACTIONS as T LEFT JOIN POOL as P on T.poolid = P.id where T.sender = (?)', [userId]).fetchall()
+
+        falseparlist = cur.execute(
+            'select T.id, T.sender, T.reciever, T.txvalue from Transactions T left join Pool P on P.Id = T.PoolId left join (select * from Block B where B.pending = 0 and B.verifiedblock = 0  order by verifiedblock limit 1) as B on P.Id = B.PoolId where B.PoolId is not 0 and T.Sender = :userId and t.PoolId is not null',
+            [userId]).fetchall()
+
         if len(falseparlist) > 0:
             for a in range(0, len(falseparlist)):
                 idstr += f'{str(falseparlist[a][0])}'
@@ -195,7 +201,8 @@ class Transactions:
                 allUserTransactions += f' The Value send = {str(falseparlist[a][3])}'
         if len(falseparlist) != 0:
             while tryagain:
-                transId = input(f'{allUserTransactions}\nWhich of the above mentioned transactions id\'s would you like to cancel? :')
+                transId = input(
+                    f'{allUserTransactions}\nWhich of the above mentioned transactions id\'s would you like to cancel? :')
                 if len(str(transId)) < 3 and idstr.__contains__(str(transId)):
                     tryagain = False
                     try:
@@ -217,7 +224,6 @@ class Transactions:
             print('There are no transactions for you to cancel')
             return
 
-
     def GetPoolTransactionFees(self, poolId):
         sql_statement = f'''SELECT count(TxFee) from Pool as P left join Transactions T on P.Id = T.PoolId WHERE P.Id = {poolId} and T.FalseTransaction = 0 and TxValue != 0'''
         try:
@@ -226,8 +232,3 @@ class Transactions:
             print(e)
             return False
         return cur.fetchone()
-
-
-
-
-
