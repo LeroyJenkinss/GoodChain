@@ -182,10 +182,10 @@ class Transactions:
         allUserTransactions = ''
         idstr = ''
         tryagain = True
-        falseparlist = cur.execute(f'select T.id, t.sender, t.reciever, t.txvalue from Transactions T left join Pool P on P.Id = T.PoolId left join '
-                                   f'(select * from Block B where B.pending = 0 and B.verifiedblock = 0  order by verifiedblock limit 1)'
-                                   f' as B on P.Id = B.PoolId where B.PoolId != 0 and T.Sender = :userId', [userId]).fetchall()
-        print(f'this is list {falseparlist}')
+        # falseparlist = cur.execute(f'select T.id, t.sender, t.reciever, t.txvalue from Transactions T left join Pool P on P.Id = T.PoolId left join '
+        #                            f'(select * from Block B where B.pending = 0 and B.verifiedblock = 0  order by verifiedblock limit 1)'
+        #                            f' as B on P.Id = B.PoolId where B.PoolId != 0 and T.Sender = :userId', [userId]).fetchall()
+        falseparlist = cur.execute('select T.* from TRANSACTIONS as T LEFT JOIN POOL as P on T.poolid = P.id where T.sender = (?)', [userId]).fetchall()
         if len(falseparlist) > 0:
             for a in range(0, len(falseparlist)):
                 idstr += f'{str(falseparlist[a][0])}'
@@ -193,25 +193,30 @@ class Transactions:
                 allUserTransactions += f' The id of the sender = {str(falseparlist[a][1])}'
                 allUserTransactions += f' The id of the receiver = {str(falseparlist[a][2])}, '
                 allUserTransactions += f' The Value send = {str(falseparlist[a][3])}'
-        while tryagain:
-            transId = input(f'{allUserTransactions}\nWhich of the above mentioned transactions id\'s would you like to cancel? :')
-            if len(str(transId)) < 3 and idstr.__contains__(str(transId)):
-                tryagain = False
-                try:
-                    cur.execute('delete from TRANSACTIONS where id = (?)', [transId])
-                    conn.commit()
-                    return
-                except Error as e:
-                    print(e)
-            else:
-                again = input(f'The Id you have chosen was incorrect would you like to try again? yes(Y) or no(N)')
-                if again == 'Y':
-                    self.cancelTransaction(userId)
-                elif again == 'N':
-                    return
+        if len(falseparlist) != 0:
+            while tryagain:
+                transId = input(f'{allUserTransactions}\nWhich of the above mentioned transactions id\'s would you like to cancel? :')
+                if len(str(transId)) < 3 and idstr.__contains__(str(transId)):
+                    tryagain = False
+                    try:
+                        cur.execute('delete from TRANSACTIONS where id = (?)', [transId])
+                        conn.commit()
+                        return
+                    except Error as e:
+                        print(e)
                 else:
-                    print(f'Your an idiot pls stop using this application')
-                    return
+                    again = input(f'The Id you have chosen was incorrect would you like to try again? yes(Y) or no(N)')
+                    if again == 'Y':
+                        self.cancelTransaction(userId)
+                    elif again == 'N':
+                        return
+                    else:
+                        print(f'Your an idiot pls stop using this application')
+                        return
+        else:
+            print('There are no transactions for you to cancel')
+            return
+
 
     def GetPoolTransactionFees(self, poolId):
         sql_statement = f'''SELECT count(TxFee) from Pool as P left join Transactions T on P.Id = T.PoolId WHERE P.Id = {poolId} and T.FalseTransaction = 0 and TxValue != 0'''
