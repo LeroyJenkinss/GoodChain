@@ -42,7 +42,10 @@ class Submenu:
         Transactions().cancelTransaction(userId)
 
     def mineBlock(self, minerId):
-        Mining().mine(minerId)
+        if Mining().verifyBlockPresent():
+            print(f'There is a block already waiting for verification.')
+        else:
+            Mining().mine(minerId)
 
     def showPublicKey(self, userId):
         try:

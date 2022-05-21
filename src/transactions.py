@@ -14,6 +14,7 @@ class Transactions:
 
         self.sendToId = None
         self.transactionFee = None
+        self.created = None
 
     def validTransaction(self, id, sendername):
         name = True
@@ -36,9 +37,9 @@ class Transactions:
         count = 0
         while count != 3:
             transferValue = input('Plz state the amount you would like to transfer, it must be a decimal number: ')
+            self.amount = float(transferValue)
             if any(chr.isdigit() for chr in transferValue) and isinstance(float(transferValue), float) and float(
                     transferValue) > 0:
-                self.amount = transferValue
                 self.createTransAction(float(transferValue))
                 return
             elif transferValue[0:1] == '-' or transferValue == '0':
@@ -54,11 +55,17 @@ class Transactions:
     def createTransAction(self, value):
         self.transactionFee = value * 0.05
         poolId = Pools().getavailablePool()[0]
+        self.created = str(datetime.now())
         try:
-            signedTransaction = self.signtransaction(poolId)
-            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created, transactionsig) VALUES (?,?,?,?,?,?,?)'''
+            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created) VALUES (?,?,?,?,?,?)'''
             values_to_insert = (
-                self.Id, self.sendToId, self.amount, self.transactionFee, poolId, datetime.now(), signedTransaction)
+                self.Id, self.sendToId, self.amount, self.transactionFee, poolId, self.created)
+            cur.execute(sqlstatement, values_to_insert)
+            conn.commit()
+            transactionId = cur.execute("select Id from TRANSACTIONS where created = (?)", [self.created]).fetchone()[0]
+            signedTransaction = self.signtransaction(transactionId)
+            sqlstatement = '''update TRANSACTIONS  set transactionsig = (?) where id = (?)'''
+            values_to_insert = (signedTransaction, transactionId)
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
             HashCheck().writeHashtransaction()
@@ -104,30 +111,20 @@ class Transactions:
         except Error as e:
             print(e)
 
-    def signtransaction(self, poolid):
+    def signtransaction(self, transactionId):
         try:
-            print(f'this is self.id {self.Id}')
+
             privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [self.Id]).fetchone()[0]
-            if str(self.amount)[len(str(self.amount)) - 2:] == '.0':
-                self.amount = int(str(self.amount)[0:len(str(self.amount)) - 2])
-            if str(self.transactionFee)[len(str(self.transactionFee)) - 2:] == '.0':
-                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee)) - 2])
-            signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
+            signdata = self.fetchSignData(transactionId)
             return sign(signdata, privatesig)
 
         except Error as e:
             print(e)
 
-    def signtransaction2(self, poolid, userid):
+    def signtransaction2(self, transactionId, userid):
         try:
-            print(f'this is self.id {self.Id}')
-            print(f'this is self.id {userid}')
             privatesig = cur.execute("SELECT private_key FROM USERS WHERE id = (?)", [userid]).fetchone()[0]
-            if str(self.amount)[len(str(self.amount)) - 2:] == '.0':
-                self.amount = int(str(self.amount)[0:len(str(self.amount)) - 2])
-            if str(self.transactionFee)[len(str(self.transactionFee)) - 2:] == '.0':
-                self.transactionFee = int(str(self.transactionFee)[0:len(str(self.transactionFee)) - 2])
-            signdata = [self.sendToId, self.amount, self.transactionFee, poolid]
+            signdata = self.fetchSignData(transactionId)
             return sign(signdata, privatesig)
 
         except Error as e:
@@ -157,26 +154,33 @@ class Transactions:
         except Error as e:
             print(e)
 
-    def verifyTransAction(self, transactionId, senderId, txvalue, signature):
+    def fetchSignData(self,transactionId):
+        data = cur.execute(f'select T.reciever , T.poolid, T.txfee, U.public_key, T.created from TRANSACTIONS T left join USERS U on T.sender = U.id where T.Id = (?) ', [transactionId]).fetchone()
+        return data
 
+    def verifyTransAction(self, transactionId, senderId, txvalue, signature):
         try:
-            recieverId = cur.execute(f'select reciever from transactions where id = (?)', [transactionId]).fetchone()[0]
-            poolid = cur.execute(f'select poolid from transactions where id = (?)', [transactionId]).fetchone()[0]
-            transactionFee = cur.execute(f'select txfee from transactions where id = (?)', [transactionId]).fetchone()[
-                0]
-            pubkeySender = cur.execute(f'select public_key from USERS where id = (?)', [senderId]).fetchone()[0]
-            signedData = [recieverId, txvalue, transactionFee, poolid]
-            return verify(signedData, signature, pubkeySender)
+            signedData = self.fetchSignData(transactionId)
+
+            return verify(signedData, signature, signedData[3])
         except Error as e:
             print(e)
 
     def createTransAction2(self, fakeuser, recieverId, txValue, txFee, poolId, signature):
         try:
             print(f'this is poolid {poolId}')
-            signedTransaction = self.signtransaction2(poolId, recieverId)
-            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created, transactionsig) VALUES (?,?,?,?,?,?,?)'''
+            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created) VALUES (?,?,?,?,?,?)'''
             values_to_insert = (
-                fakeuser, recieverId, txValue, txFee, poolId, datetime.now(), signature)
+                fakeuser, recieverId, txValue, txFee, poolId, datetime.now())
+            cur.execute(sqlstatement, values_to_insert)
+            conn.commit()
+
+            sqlstatement = '''select Id from TRANSACTIONS order by 1 desc limit 1'''
+            transactionId = cur.execute(sqlstatement).fetchone()[0]
+            signedTransaction = self.signtransaction2(transactionId, recieverId)
+
+            sqlstatement = '''update TRANSACTIONS  set transactionsig = (?) where id = (?)'''
+            values_to_insert = (signedTransaction, transactionId)
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
             HashCheck().writeHashtransaction()

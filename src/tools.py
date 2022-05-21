@@ -41,12 +41,26 @@ def sign(transaction, private):
     return signature
 
 
-def verify(message, signature, pbc_ser):
-    public_key = serialization.load_pem_public_key(pbc_ser)
+# def verify(message, signature, pbc_ser):
+#     # public_key = serialization.load_pem_public_key(pbc_ser)
+#     try:
+#         output = pbc_ser.verify(
+#             signature,
+#             bytes(str(message), 'UTF-8'),
+#             padding.PSS(
+#                 mgf=padding.MGF1(hashes.SHA256()),
+#                 salt_length=padding.PSS.MAX_LENGTH
+#             ),
+#             hashes.SHA256())
+#         return True
+#     except:
+#         return False
+def verify(transactionData, sig, public):
     try:
+        public_key = load_pem_public_key(public)
         output = public_key.verify(
-            signature,
-            bytes(str(message), 'UTF-8'),
+            sig,
+            bytes(str(transactionData), 'UTF-8'),
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()),
                 salt_length=padding.PSS.MAX_LENGTH

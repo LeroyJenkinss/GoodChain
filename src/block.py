@@ -32,9 +32,6 @@ class Block:
                             self.verifyBlock(idchoice, userId)
                 else:
                     return
-
-
-
         except Error as e:
             print(e)
 
@@ -83,20 +80,17 @@ class Block:
         data = Pools().GetPoolTransactions(block[2])
 
         digest = str(data) + str(block[5])
-        print(f'this is the block1 {digest}')
         if previousBlockHash is not None:
             digest += str(previousBlockHash)
-        digest = sha256(digest)
-        print(f'this is digest {digest } and this is block[1] {block[1]}')
-        if digest == block[1] and checkTransactions != False:
+        newDigest = sha256(digest)
+        print(f'this is digest {newDigest } and\n this is block[1] {block[1]}')
+        if newDigest == block[1] and checkTransactions != False:
             self.createNewBlockVerify(block[0], userId, 1)
             amountBlockVerified = int(self.getAmountBlockVerified(block[0])[0])
             if amountBlockVerified == 3:
                 Transactions().createTransAction2(1, userId, int(Transactions().GetPoolTransactionFees(block[2])[0]) + 50, 0, 1,
                                               'miningreward')
-
-
-
+        #         blockupdate
 
         else:
             print('block is not correct')

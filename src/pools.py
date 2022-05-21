@@ -66,7 +66,7 @@ class Pools:
                 '''SELECT id from POOL where realpool = true''')
             toCheckTransId = cur.fetchall()
             for a in toCheckTransId:
-                print(f'These are the Pool id numbers:{a[0]}')
+                print(f'These are the Pool id numbers: {a[0]}')
             if len(toCheckTransId) == 0:
                 print(f'There are no pools available for you to check')
                 return
@@ -114,10 +114,9 @@ class Pools:
         return
 
     def GetPoolTransactions(self, poolId):
-        sql_statement = f'''SELECT T.* from Transactions as T left join Pool P on P.Id = T.PoolId WHERE T.poolid = {poolId} and t.falsetransaction = 0 or t.falsetransaction is null and t.txvalue != 0'''
         try:
-            cur.execute(sql_statement)
+            cur.execute('''SELECT T.* from Transactions as T left join Pool P on P.Id = T.PoolId WHERE T.poolid = (?) and (t.falsetransaction = 0 or t.falsetransaction is null) and t.txvalue != 0''', [poolId])
         except Error as e:
             print(e)
             return False
-        return cur.fetchone()
+        return cur.fetchall()

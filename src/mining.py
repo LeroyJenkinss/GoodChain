@@ -16,14 +16,11 @@ class Mining:
         self.MinerId = None
         self.poolsString = ''
 
-    # alle transaction uit een pool in een list
-
     def mine(self, minerId):
         MinerId = minerId
         poolId = self.checkAvailablePools()
         if poolId is not None:
             previousBlock = Block().getLatestBlock()
-            print(f'this is previousblock {previousBlock}')
             previousBlockHash = None
             if previousBlock is not None:
                 if previousBlock[3] is None:
@@ -61,7 +58,7 @@ class Mining:
             # pools = cur.execute('''SELECT P.id from block as B LEFT JOIN Pool P on P.id = B.poolid WHERE  P.realpool = 1 and B.nonce IS null''').fetchall()
             pools = cur.execute('''SELECT P.Id from Pool as P LEFT JOIN Block B on P.Id = B.PoolId where PoolFull = 1
                                     EXCEPT
-                                    SELECT P.Id from Block as B LEFT JOIN Pool P on P.Id = B.PoolId where PoolFull = 1''').fetchall()
+                                    SELECT P.Id from Block as B LEFT JOIN Pool P on P.Id = B.PoolId where PoolFull = 1 OR B.blockhash != 0 ''').fetchall()
 
             for a in range(0, len(pools)):
                 if len(self.poolsString) == 0:
@@ -112,5 +109,14 @@ class Mining:
             valuesTransaction = False
         return valuesTransaction
 
-
+    def verifyBlockPresent(self):
+        sql_statement = '''SELECT * from Block where verifiedblock != 1 '''
+        try:
+            ver = cur.execute(sql_statement)
+            if ver.fetchone() is not None:
+                return True
+            return False
+        except Error as e:
+            print(e)
+            return False
 
