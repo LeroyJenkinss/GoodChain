@@ -90,7 +90,7 @@ class Block:
             if amountBlockVerified == 3:
                 Transactions().createTransAction2(1, userId, int(Transactions().GetPoolTransactionFees(block[2])[0]) + 50, 0, 1,
                                               'miningreward')
-        #         blockupdate
+                self.blockVerified(block)
 
         else:
             print('block is not correct')
@@ -124,7 +124,7 @@ class Block:
             return block
         except Error as e:
             print(e)
-            print('wtf')
+
 
 
 
@@ -187,3 +187,14 @@ class Block:
         except Error as e:
             print(e)
             return False
+
+    def blockVerified(self,block):
+        try:
+            blockId = block[0]
+            cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [blockId])
+            conn.commit()
+        except Error as e:
+            print(e)
+        return
+
+
