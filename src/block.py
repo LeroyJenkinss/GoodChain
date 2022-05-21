@@ -180,7 +180,7 @@ class Block:
                 print(e)
 
     def getAmountBlockVerified(self, blockId):
-        sql_statement = 'SELECT count(*) from blockverify where BlockId = :blockId and BlockCorrect = 1'
+        sql_statement = 'SELECT count(distinct validateUserId) from blockverify where BlockId = :blockId and BlockCorrect = 1'
         try:
             cur.execute(sql_statement, {"blockId": blockId})
             return cur.fetchone()

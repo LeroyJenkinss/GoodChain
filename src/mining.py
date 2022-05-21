@@ -26,7 +26,7 @@ class Mining:
                 if previousBlock[3] is None:
                     print(f'A block is already avialable for verifing')
                     return
-                blockDate = datetime.strptime(previousBlock[6], '%Y-%m-%d %H:%M:%S.%f')
+                blockDate = datetime.strptime(previousBlock[7], '%Y-%m-%d %H:%M:%S.%f')
 
                 if blockDate > (datetime.now() - timedelta(minutes=3)):
                     print(
