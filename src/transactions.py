@@ -141,12 +141,16 @@ class Transactions:
 
     def setFalseTransactionToZero(self, userId):
         try:
+
             falseparlist = cur.execute(
                 f'select id from transactions where sender = (?) and falsetransaction = 1 and txvalue != 0',
                 [userId]).fetchall()
+            if len(falseparlist) > 0:
+                self.redirectCorrectTransactionsToPool(userId)
             cur.execute(f'UPDATE transactions set txvalue = 0, txfee = 0 where falsetransaction = 1 and sender = (?)',
                         [userId])
             conn.commit()
+
             if len(falseparlist) > 0:
                 print(f'The following transactions have been set to zero, due to not being valid {falseparlist}')
             return
@@ -154,8 +158,40 @@ class Transactions:
         except Error as e:
             print(e)
 
-    def fetchSignData(self,transactionId):
-        data = cur.execute(f'select T.reciever , T.poolid, T.txfee, U.public_key, T.created from TRANSACTIONS T left join USERS U on T.sender = U.id where T.Id = (?) ', [transactionId]).fetchone()
+    def redirectCorrectTransactionsToPool(self, userId):
+        try:
+            redictPoolid = cur.execute(
+                f'select poolid from transactions where sender = (?) and falsetransaction = 1 and txvalue != 0',
+                [userId]).fetchone()
+            print(f'this is redictPoolid  {redictPoolid}')
+
+            if redictPoolid[0] is not None:
+                validTransactions = cur.execute(
+                    f'select id from transactions where sender = (?) and poolid = (?) and txvalue != 0 and falsetransaction IS NULL',
+                    [userId, redictPoolid[0]]).fetchall()
+
+                poolId = Pools().getavailablePool()[0]
+
+                lenPool = cur.execute(
+                    f'select count(id) from transactions where poolid = (?)',
+                    [poolId]).fetchone()[0]
+
+                if (10 - int(lenPool)) >= len(validTransactions):
+                    for a in validTransactions:
+                        cur.execute(
+                            f'UPDATE transactions set poolid = (?) where id = (?)',
+                            [poolId, a[0]])
+                        conn.commit()
+
+        except Error as e:
+            print(e)
+
+        return
+
+    def fetchSignData(self, transactionId):
+        data = cur.execute(
+            f'select T.reciever , T.poolid, T.txfee, U.public_key, T.created from TRANSACTIONS T left join USERS U on T.sender = U.id where T.Id = (?) ',
+            [transactionId]).fetchone()
         return data
 
     def verifyTransAction(self, transactionId, senderId, txvalue, signature):
@@ -168,7 +204,6 @@ class Transactions:
 
     def createTransAction2(self, fakeuser, recieverId, txValue, txFee, poolId, signature):
         try:
-            print(f'this is poolid {poolId}')
             sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created) VALUES (?,?,?,?,?,?)'''
             values_to_insert = (
                 fakeuser, recieverId, txValue, txFee, poolId, datetime.now())
@@ -229,10 +264,18 @@ class Transactions:
             return
 
     def GetPoolTransactionFees(self, poolId):
-        sql_statement = f'''SELECT count(TxFee) from Pool as P left join Transactions T on P.Id = T.PoolId WHERE P.Id = {poolId} and T.FalseTransaction = 0 and TxValue != 0'''
+        # sql_statement = f'''SELECT count(TxFee) from Pool as P left join Transactions T on P.Id = T.PoolId WHERE P.Id = {poolId} and T.FalseTransaction = 0 and TxValue != 0'''
         try:
-            cur.execute(sql_statement)
+            value = cur.execute(
+                "select sum(txfee) from TRANSACTIONS as T left join POOL as P on P.id = T.poolid where t.poolid = (?) and txvalue != 0",
+                [poolId]).fetchone()
+            if int(value[0]) == 0:
+                value = '0'
+                return value
+
+            print(f'This is the value: {value}')
+            print(f'This is the value[0]: {format(value[0], ".2f")}')
         except Error as e:
             print(e)
             return False
-        return cur.fetchone()
+        return str(format(value[0], ".2f"))

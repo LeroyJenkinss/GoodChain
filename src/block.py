@@ -75,7 +75,6 @@ class Block:
         previousBlock = self.getLatestVerifiedBlock()
         previousBlockHash = None
         if previousBlock is not None:
-            print(f'previousblock {previousBlock}')
             previousBlockHash = previousBlock[1]
         data = Pools().GetPoolTransactions(block[2])
 
@@ -83,12 +82,11 @@ class Block:
         if previousBlockHash is not None:
             digest += str(previousBlockHash)
         newDigest = sha256(digest)
-        print(f'this is digest {newDigest } and\n this is block[1] {block[1]}')
         if newDigest == block[1] and checkTransactions != False:
             self.createNewBlockVerify(block[0], userId, 1)
             amountBlockVerified = int(self.getAmountBlockVerified(block[0])[0])
             if amountBlockVerified == 3:
-                Transactions().createTransAction2(1, userId, int(Transactions().GetPoolTransactionFees(block[2])[0]) + 50, 0, 1,
+                Transactions().createTransAction2(1, userId, int(Transactions().GetPoolTransactionFees(block[2])) + 50, 0, 1,
                                               'miningreward')
                 self.blockVerified(block)
 
@@ -162,22 +160,22 @@ class Block:
                 blockString += f'\nThe block was created at = {str(blockList[a][6])}, '
                 blockString += f'\nThe block pending state = {str(blockList[a][7])}\n'
         print(f'{blockString}')
-        if len(blockList) > 0:
-            PoolIdChoice = int(input(f'Which of the above mentioned pool\'s (poolId) would you look into? : '))
-        else:
-            print(f'There are no available blocks for you to Explore')
-            return
-
-        if PoolIdChoice in idstr:
-            try:
-                requestedPooltransactions = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?)",
-                                                        [PoolIdChoice]).fetchall()
-                if len(requestedPooltransactions) == 0:
-                    print(f'The pool with id {PoolIdChoice} is empty')
-                Pools().showTransactionsOfPool(requestedPooltransactions)
-                return
-            except Error as e:
-                print(e)
+        # if len(blockList) > 0:
+        #     PoolIdChoice = int(input(f'Which of the above mentioned pool\'s (poolId) would you look into? : '))
+        # else:
+        #     print(f'There are no available blocks for you to Explore')
+        #     return
+        #
+        # if PoolIdChoice in idstr:
+        #     try:
+        #         requestedPooltransactions = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?)",
+        #                                                 [PoolIdChoice]).fetchall()
+        #         if len(requestedPooltransactions) == 0:
+        #             print(f'The pool with id {PoolIdChoice} is empty')
+        #         Pools().showTransactionsOfPool(requestedPooltransactions)
+        #         return
+        #     except Error as e:
+        #         print(e)
 
     def getAmountBlockVerified(self, blockId):
         sql_statement = 'SELECT count(distinct validateUserId) from blockverify where BlockId = :blockId and BlockCorrect = 1'
