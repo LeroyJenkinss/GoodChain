@@ -86,7 +86,7 @@ class Block:
             self.createNewBlockVerify(block[0], userId, 1)
             amountBlockVerified = int(self.getAmountBlockVerified(block[0])[0])
             if amountBlockVerified == 3:
-                Transactions().createTransAction2(1, userId, int(Transactions().GetPoolTransactionFees(block[2])) + 50, 0, 1,
+                Transactions().createTransAction2(1, block[3], int(Transactions().GetPoolTransactionFees(block[2])) + 50, 0, 1,
                                               'miningreward')
                 self.blockVerified(block)
 

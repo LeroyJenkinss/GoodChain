@@ -79,7 +79,6 @@ class Transactions:
                 Pools().setPool2Full(poolId)
 
         except Error as e:
-            print("hier0")
             print(e)
 
     def newUserInsert(self, userName):
@@ -167,8 +166,8 @@ class Transactions:
 
             if redictPoolid[0] is not None:
                 validTransactions = cur.execute(
-                    f'select id from transactions where sender = (?) and poolid = (?) and txvalue != 0 and falsetransaction IS NULL',
-                    [userId, redictPoolid[0]]).fetchall()
+                    f'select id from transactions where poolid = (?) and txvalue != 0 and falsetransaction IS NULL',
+                    [redictPoolid[0]]).fetchall()
 
                 poolId = Pools().getavailablePool()[0]
 
