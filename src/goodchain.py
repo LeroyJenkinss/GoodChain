@@ -10,6 +10,9 @@ from DbHashCheck import HashCheck
 from block import Block
 from transactions import Transactions
 
+from threading import Thread
+from serverService import ServerService
+
 
 def menu1():
     loginUser = Login()
@@ -109,6 +112,8 @@ if __name__ == "__main__":
         dbMessage = '\nTransaction has been tempered with'
     if not userValid:
         dbMessage = '\nUser has been tempered with'
+    new_thread = Thread(target=ServerService().recObj)
+    new_thread.start()
     Pools().newUserPool()
     Signup().newFakeUser()
     mainmenu()

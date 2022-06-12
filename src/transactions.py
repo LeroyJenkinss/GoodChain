@@ -4,6 +4,7 @@ from pools import Pools
 from datetime import datetime
 from DbHashCheck import *
 from tools import sign, verify
+from clientService import ClientService
 
 
 class Transactions:
@@ -69,6 +70,11 @@ class Transactions:
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
             HashCheck().writeHashtransaction()
+
+            # Here I will extract the latest insert for the serverbroadcast
+            latestTransAction = self.getLatestTransaction()
+            ClientService().sendTransactions(latestTransAction)
+
             try:
                 poolCount = cur.execute("select count(id) from transactions where poolid = (?)", [poolId]).fetchone()
             except Error as e:
@@ -80,6 +86,16 @@ class Transactions:
 
         except Error as e:
             print(e)
+
+    def getLatestTransaction(self):
+        try:
+            latestInsert = cur.execute(
+                "select sender, reciever, txvalue, txfee, poolid, created, modified, falsetransaction, transactionsig from  TRANSACTIONS where ID = (select max(ID) from TRANSACTIONS)").fetchone()
+            latestInsertModified = (latestInsert[0], latestInsert[1], float(latestInsert[2]), float(latestInsert[3]), latestInsert[4], latestInsert[5], latestInsert[6], latestInsert[7], latestInsert[8])
+
+            return latestInsertModified
+        except Error as e:
+            print(f'This is an error when getting lastest insert: {e}')
 
     def newUserInsert(self, userName):
         try:
