@@ -69,7 +69,7 @@ class Block:
 
             # Here I will broadcast the new block to the server
             latestblock = self.getLatestBlock()
-            ClientService().sendTransactions(latestblock)
+            ClientService().sendBlock(latestblock)
             return
         except Error as e:
             print(e)
@@ -214,6 +214,11 @@ class Block:
             blockId = block[0]
             cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [blockId])
             conn.commit()
+
+            # Here I will extract the latest insert for the serverbroadcast
+
+            ClientService().sendVerification(blockId)
+
         except Error as e:
             print(e)
         return
