@@ -112,8 +112,14 @@ if __name__ == "__main__":
         dbMessage = '\nTransaction has been tempered with'
     if not userValid:
         dbMessage = '\nUser has been tempered with'
-    new_thread = Thread(target=ServerService().recObj)
-    new_thread.start()
+    new_thread1 = Thread(target=ServerService().recTransaction)
+    new_thread1.start()
+    new_thread2 = Thread(target=ServerService().recUser)
+    new_thread2.start()
+    new_thread3 = Thread(target=ServerService().recBlockchain)
+    new_thread3.start()
+    new_thread4 = Thread(target=ServerService().recBlockVerification)
+    new_thread4.start()
     Pools().newUserPool()
     Signup().newFakeUser()
     mainmenu()

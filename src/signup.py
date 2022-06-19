@@ -74,5 +74,15 @@ class Signup:
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
 
+    def insertNewUser(self, userData):
+        insertStatement = '''INSERT INTO USERS(USERNAME,PASSWORD,PUBLIC_KEY,PRIVATE_KEY)VALUES(?,?,?,?)'''
+        valuesToInsert = (userData[0], userData[1], userData[2], userData[3])
+        try:
+            cur.execute(insertStatement, valuesToInsert)
+            conn.commit()
+
+        except Error as e:
+            print(e)
+
 
 

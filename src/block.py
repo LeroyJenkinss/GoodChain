@@ -4,6 +4,7 @@ from pools import Pools
 from tools import sha256
 from transactions import Transactions
 from blockmining import Blockmining
+from clientService import ClientService
 
 
 class Block:
@@ -65,9 +66,33 @@ class Block:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
             print('Block has been added.')
+
+            # Here I will broadcast the new block to the server
+            latestblock = self.getLatestBlock()
+            ClientService().sendTransactions(latestblock)
             return
         except Error as e:
             print(e)
+
+    def CreateNewBlock(self, blockData):
+        sql_statement = '''INSERT INTO Block (blockHash, nonce ,mineruserid, poolid, created, pending) VALUES(?,?,?,?,?,?)'''
+        values_to_insert = (blockData[0], blockData[1], blockData[2], blockData[3], blockData[4], blockData[5])
+        try:
+            cur.execute(sql_statement, values_to_insert)
+            conn.commit()
+            print('Block has been added.')
+
+            return
+        except Error as e:
+            print(e)
+
+    def getLatestBlock(self):
+        try:
+            cur.execute("SELECT * FROM BLOCK where ORDER BY 1 DESC LIMIT 1")
+        except Error as e:
+            print(e)
+            return False
+        return cur.fetchone()
 
     def verifyBlock(self, block, userId):
         block = self.getALlFromBlock(block)
@@ -86,8 +111,9 @@ class Block:
             self.createNewBlockVerify(block[0], userId, 1)
             amountBlockVerified = int(self.getAmountBlockVerified(block[0])[0])
             if amountBlockVerified == 3:
-                Transactions().createTransAction2(1, block[3], int(Transactions().GetPoolTransactionFees(block[2])) + 50, 0, 1,
-                                              'miningreward')
+                Transactions().createTransAction2(1, block[3],
+                                                  int(Transactions().GetPoolTransactionFees(block[2])) + 50, 0, 1,
+                                                  'miningreward')
                 self.blockVerified(block)
 
         else:
@@ -122,9 +148,6 @@ class Block:
             return block
         except Error as e:
             print(e)
-
-
-
 
     def checkIfBlockVerified3Times(self, blockId):
         try:
@@ -186,7 +209,7 @@ class Block:
             print(e)
             return False
 
-    def blockVerified(self,block):
+    def blockVerified(self, block):
         try:
             blockId = block[0]
             cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [blockId])
@@ -195,4 +218,10 @@ class Block:
             print(e)
         return
 
-
+    def AddblockVerified(self, verifyData):
+        try:
+            cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [verifyData[0]])
+            conn.commit()
+        except Error as e:
+            print(e)
+        return

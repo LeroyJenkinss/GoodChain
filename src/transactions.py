@@ -294,3 +294,15 @@ class Transactions:
             print(e)
             return False
         return str(format(value[0], ".2f"))
+
+    def addTransAction(self, transaction):
+        try:
+            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created) VALUES (?,?,?,?,?,?)'''
+            values_to_insert = (
+                self.Id, self.sendToId, self.amount, self.transactionFee, poolId, self.created)
+            cur.execute(sqlstatement, values_to_insert)
+            conn.commit()
+
+
+        except Error as e:
+            print(e)
