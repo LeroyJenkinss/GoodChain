@@ -225,7 +225,7 @@ class Block:
 
     def AddblockVerified(self, verifyData):
         try:
-            cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [verifyData[0]])
+            cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [verifyData])
             conn.commit()
         except Error as e:
             print(e)
