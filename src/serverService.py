@@ -34,7 +34,7 @@ class ServerService:
                 print(' zit er in a mattie')
                 data = clientsocket.recv(BUFFER_SIZE)
                 if data:
-                    print(pickle.loads(data))
+                    print(f'Dit is de data {pickle.loads(data)}')
                     result = Transactions().addTransAction(pickle.loads(data))
                     if result:
                         clientsocket.sendall(bytes('1', 'utf-8'))
@@ -113,7 +113,7 @@ class ServerService:
                                                                     [socket], 15)
             for s in ready_to_read:
                 clientsocket, addr = s.accept()
-                print(' zit er in a mattie')
+                print('zit er in a mattie ')
                 data = clientsocket.recv(BUFFER_SIZE)
                 if data:
                     print(pickle.loads(data))

@@ -297,9 +297,10 @@ class Transactions:
 
     def addTransAction(self, transaction):
         try:
-            sqlstatement = '''insert into TRANSACTIONS (sender, reciever, txvalue, txfee, poolid, created) VALUES (?,?,?,?,?,?)'''
+            print('ik ben bij de query')
+            sqlstatement = '''insert into TRANSACTIONS ( sender, reciever, txvalue, txfee, poolid, created, modified, falsetransaction, transactionsig) VALUES (?,?,?,?,?,?,?,?,?)'''
             values_to_insert = (
-                self.Id, self.sendToId, self.amount, self.transactionFee, poolId, self.created)
+                transaction[0], transaction[1], transaction[2], transaction[3], transaction[4], transaction[5], transaction[6], transaction[7], transaction[8])
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
 

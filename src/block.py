@@ -214,11 +214,9 @@ class Block:
             blockId = block[0]
             cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [blockId])
             conn.commit()
-
             # Here I will extract the latest insert for the serverbroadcast
 
             ClientService().sendVerification(blockId)
-
         except Error as e:
             print(e)
         return
