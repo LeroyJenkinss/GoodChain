@@ -8,12 +8,21 @@ class ClientService:
         self.BUFFER_SIZE = 1024
 
     def sendTransactions(self, transactionData):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.TCP_IP, 1233))
-        s.send(pickle.dumps(transactionData))
-        data = s.recv(self.BUFFER_SIZE)
-        print(data)
-        s.close()
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.TCP_IP, 1233))
+            s.send(pickle.dumps(transactionData))
+            data = s.recv(self.BUFFER_SIZE)
+            if data == b'1':
+                print('Transaction was send')
+                s.close()
+                return True
+            else:
+                return False
+        except:
+            print('Transaction failed and wil be removed')
+            return False
+
 
     def sendBlock(self, blockData):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

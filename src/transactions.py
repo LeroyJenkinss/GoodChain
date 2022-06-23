@@ -73,7 +73,9 @@ class Transactions:
 
             # Here I will extract the latest insert for the serverbroadcast
             latestTransAction = self.getLatestTransaction()
-            ClientService().sendTransactions(latestTransAction)
+            result = ClientService().sendTransactions(latestTransAction)
+            if not result:
+                self.removeLatestTransaction()
 
             try:
                 poolCount = cur.execute("select count(id) from transactions where poolid = (?)", [poolId]).fetchone()
@@ -91,11 +93,23 @@ class Transactions:
         try:
             latestInsert = cur.execute(
                 "select sender, reciever, txvalue, txfee, poolid, created, modified, falsetransaction, transactionsig from  TRANSACTIONS where ID = (select max(ID) from TRANSACTIONS)").fetchone()
-            latestInsertModified = (latestInsert[0], latestInsert[1], float(latestInsert[2]), float(latestInsert[3]), latestInsert[4], latestInsert[5], latestInsert[6], latestInsert[7], latestInsert[8])
+            latestInsertModified = (
+            latestInsert[0], latestInsert[1], float(latestInsert[2]), float(latestInsert[3]), latestInsert[4],
+            latestInsert[5], latestInsert[6], latestInsert[7], latestInsert[8])
 
             return latestInsertModified
         except Error as e:
             print(f'This is an error when getting lastest insert: {e}')
+
+    def removeLatestTransaction(self):
+        try:
+            latestInsertToRemove = cur.execute(
+                "delete from  TRANSACTIONS where ID = (select max(ID) from TRANSACTIONS)")
+            conn.commit()
+
+
+        except Error as e:
+            print(f'removeLatestTransaction didnt work : {e}')
 
     def newUserInsert(self, userName):
         try:
@@ -297,13 +311,15 @@ class Transactions:
 
     def addTransAction(self, transaction):
         try:
-            print('ik ben bij de query')
             sqlstatement = '''insert into TRANSACTIONS ( sender, reciever, txvalue, txfee, poolid, created, modified, falsetransaction, transactionsig) VALUES (?,?,?,?,?,?,?,?,?)'''
             values_to_insert = (
-                transaction[0], transaction[1], transaction[2], transaction[3], transaction[4], transaction[5], transaction[6], transaction[7], transaction[8])
+                transaction[0], transaction[1], transaction[2], transaction[3], transaction[4], transaction[5],
+                transaction[6], transaction[7], transaction[8])
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
+            return True
 
 
         except Error as e:
             print(e)
+            return False
