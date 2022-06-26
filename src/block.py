@@ -68,15 +68,35 @@ class Block:
             print('Block has been added.')
 
             # Here I will broadcast the new block to the server
-            latestblock = self.getLatestBlock()
-            ClientService().sendBlock(latestblock)
-            return
+            latestblock = self.getLatestBlock4broadcast()
+            result = ClientService().sendBlock(latestblock)
+            if not result:
+                self.removeLatestBlock(latestblock[7])
+
         except Error as e:
             print(e)
 
+    def getLatestBlock4broadcast(self):
+        try:
+            latestBlockInserted = cur.execute(
+                "select blockhash, poolid, mineruserid, verifiedblock,nonce, pending, created, id from  BLOCK where ID = (select max(ID) from BLOCK)").fetchone()
+            latestInsertModified = (latestBlockInserted[0] , latestBlockInserted[1], latestBlockInserted[2], latestBlockInserted[3], latestBlockInserted[4], latestBlockInserted[5], latestBlockInserted[6], latestBlockInserted[7])
+            return latestInsertModified
+        except Error as e:
+            print(f'This is an error when getting lastest block: {e}')
+
+
+    def removeLatestBlock(self, blockId):
+        try:
+            latestInsertToRemove = cur.execute("delete from  BLOCK where ID = (?)", [blockId])
+            conn.commit()
+
+        except Error as e:
+            print(f'removeLatestBlock didnt work : {e}')
+
     def CreateNewBlock(self, blockData):
-        sql_statement = '''INSERT INTO Block (blockHash, nonce ,mineruserid, poolid, created, pending) VALUES(?,?,?,?,?,?)'''
-        values_to_insert = (blockData[0], blockData[1], blockData[2], blockData[3], blockData[4], blockData[5])
+        sql_statement = '''INSERT INTO Block (blockHash, poolid, mineruserid, verifiedblock,nonce, pending, created ) VALUES(?,?,?,?,?,?,?)'''
+        values_to_insert = (blockData[0], blockData[1], blockData[2], blockData[3], blockData[4], blockData[5], blockData[6])
         try:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
@@ -183,22 +203,6 @@ class Block:
                 blockString += f'\nThe block was created at = {str(blockList[a][6])}, '
                 blockString += f'\nThe block pending state = {str(blockList[a][7])}\n'
         print(f'{blockString}')
-        # if len(blockList) > 0:
-        #     PoolIdChoice = int(input(f'Which of the above mentioned pool\'s (poolId) would you look into? : '))
-        # else:
-        #     print(f'There are no available blocks for you to Explore')
-        #     return
-        #
-        # if PoolIdChoice in idstr:
-        #     try:
-        #         requestedPooltransactions = cur.execute("SELECT * FROM TRANSACTIONS WHERE poolid = (?)",
-        #                                                 [PoolIdChoice]).fetchall()
-        #         if len(requestedPooltransactions) == 0:
-        #             print(f'The pool with id {PoolIdChoice} is empty')
-        #         Pools().showTransactionsOfPool(requestedPooltransactions)
-        #         return
-        #     except Error as e:
-        #         print(e)
 
     def getAmountBlockVerified(self, blockId):
         sql_statement = 'SELECT count(distinct validateUserId) from blockverify where BlockId = :blockId and BlockCorrect = 1'
@@ -214,12 +218,21 @@ class Block:
             blockId = block[0]
             cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [blockId])
             conn.commit()
-            # Here I will extract the latest insert for the serverbroadcast
 
-            ClientService().sendVerification(blockId)
+            # Here I will extract the latest insert for the serverbroadcast
+            result = ClientService().sendVerification(blockId)
+            if not result:
+                self.removeLatestVerify(blockId)
         except Error as e:
             print(e)
         return
+
+    def removeLatestVerify(self, blockId):
+        try:
+            cur.execute("UPDATE BLOCK set verifiedblock = 0 WHERE id = (?) ", [blockId])
+            conn.commit()
+        except Error as e:
+            print(f'The removeLatestVerify failed: {e}')
 
     def AddblockVerified(self, verifyData):
         try:

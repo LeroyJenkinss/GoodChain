@@ -1,5 +1,6 @@
 from database import *
 from datetime import datetime
+from clientService import ClientService
 
 
 class Pools:
@@ -28,9 +29,34 @@ class Pools:
             cur.execute(sqlStatement, values_to_insert)
             conn.commit()
 
+            # New pool broadcast
+            latestPool = self.getLatestPool()
+            result = ClientService().sendPool(latestPool)
+            if not result:
+                self.removeLatestPool(latestPool[4])
+
         except Error as e:
             print(e)
         return self.getavailablePool()
+
+    def getLatestPool(self):
+        try:
+            latestInsert = cur.execute("select  poolfull, realpool, verified, created, id from  POOL where ID = (select max(ID) from USERS)").fetchone()
+            latestPool = (latestInsert[0], latestInsert[1], latestInsert[2], latestInsert[3], latestInsert[4])
+
+            return latestPool
+        except Error as e:
+            print(f'This is an error when getting lastest pool insert: {e}')
+
+    def removeLatestPool(self, poolId):
+        try:
+            latestInsertToRemove = cur.execute("delete from  POOL where ID = (?)", [poolId])
+            conn.commit()
+
+        except Error as e:
+            print(f'removeLatestPool didnt work : {e}')
+
+
 
     def countPoolTransactions(self, idpool):
         sqlStatement = '''select * from TRANSACTIONS where poolid = ? and poolid != 1'''
@@ -120,3 +146,16 @@ class Pools:
             print(e)
             return False
         return cur.fetchall()
+
+    def CreateNewPool(self, poolData):
+        sql_statement = '''INSERT INTO Pool (poolfull, realpool ,verified, created) VALUES(?,?,?,?)'''
+        values_to_insert = (poolData[0], poolData[1], poolData[2], poolData[3])
+        try:
+            cur.execute(sql_statement, values_to_insert)
+            conn.commit()
+            print('Pool has been added.')
+            return True
+
+        except Error as e:
+            print(e)
+            return False

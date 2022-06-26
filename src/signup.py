@@ -3,6 +3,7 @@ from tools import sha256, generate_keys
 from sqlite3 import Error
 from DbHashCheck import *
 import transactions
+from clientService import ClientService
 
 
 class Signup:
@@ -32,23 +33,46 @@ class Signup:
             try:
                 cur.execute(insertStatement, valuesToInsert)
                 conn.commit()
-                transactions.Transactions.newUserInsert(self,self.userName)
+
+                latestUser = self.getLatestUser()
+                result = ClientService().sendUser(latestUser)
+                if not result:
+                    self.removeLatestUser(latestUser[4])
+
+                transactions.Transactions.newUserInsert(self, self.userName)
                 HashCheck().writeHashUser()
 
             except Error as e:
                 print(e)
 
-
             return True
 
         return False
+
+    def removeLatestUser(self, user):
+        try:
+            latestInsertToRemove = cur.execute(
+                "delete from  USERS where ID = (?)", [user])
+            conn.commit()
+
+        except Error as e:
+            print(f'removeLatestUser didnt work : {e}')
+
+    def getLatestUser(self):
+        try:
+            latestInsert = cur.execute(
+                "select  username, password, public_key, private_key, id from  USER where ID = (select max(ID) from USERS)").fetchone()
+            latestInsertModified = (latestInsert[0], latestInsert[1], latestInsert[2], latestInsert[3], latestInsert[4])
+
+            return latestInsertModified
+        except Error as e:
+            print(f'This is an error when getting lastest insert: {e}')
 
     def validate_username(self, username):
         correctUsername = True
         namePresent = cur.execute(f'select USERNAME from USERS WHERE USERNAME = \'{username}\'')
 
         if len(namePresent.fetchall()) > 0:
-
             correctUsername = False
             return correctUsername
         return correctUsername
@@ -83,6 +107,3 @@ class Signup:
 
         except Error as e:
             print(e)
-
-
-

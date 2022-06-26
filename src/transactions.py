@@ -107,7 +107,6 @@ class Transactions:
                 "delete from  TRANSACTIONS where ID = (select max(ID) from TRANSACTIONS)")
             conn.commit()
 
-
         except Error as e:
             print(f'removeLatestTransaction didnt work : {e}')
 
@@ -135,7 +134,14 @@ class Transactions:
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
 
+            latestTransAction = self.getLatestTransaction()
+            result = ClientService().sendTransactions(latestTransAction)
+            if not result:
+                self.removeLatestTransaction()
+
             HashCheck().writeHashtransaction()
+
+
 
         except Error as e:
             print(e)
