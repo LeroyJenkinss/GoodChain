@@ -5,7 +5,7 @@ import time
 class ClientService:
 
     def __init__(self):
-        self.TCP_IP = '127.0.0.1'
+        self.TCP_IP = '172.22.234.186'
         self.BUFFER_SIZE = 1024
 
     def sendTransactions(self, transactionData):

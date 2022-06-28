@@ -76,6 +76,7 @@ class Transactions:
             result = ClientService().sendTransactions(latestTransAction)
             if not result:
                 self.removeLatestTransaction()
+                return
 
             try:
                 poolCount = cur.execute("select count(id) from transactions where poolid = (?)", [poolId]).fetchone()
@@ -326,7 +327,6 @@ class Transactions:
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
             return True
-
 
         except Error as e:
             print(e)

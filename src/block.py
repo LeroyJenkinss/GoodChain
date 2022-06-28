@@ -110,7 +110,7 @@ class Block:
 
     def getLatestBlock(self):
         try:
-            cur.execute("SELECT * FROM BLOCK where ORDER BY 1 DESC LIMIT 1")
+            cur.execute("SELECT * FROM BLOCK ORDER BY 1 DESC LIMIT 1")
         except Error as e:
             print(e)
             return False

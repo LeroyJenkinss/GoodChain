@@ -39,7 +39,7 @@ class Signup:
                 if not result:
                     self.removeLatestUser(latestUser[4])
 
-                transactions.Transactions.newUserInsert(self, self.userName)
+                transactions.Transactions().newUserInsert(self.userName)
                 HashCheck().writeHashUser()
 
             except Error as e:
@@ -61,7 +61,7 @@ class Signup:
     def getLatestUser(self):
         try:
             latestInsert = cur.execute(
-                "select  username, password, public_key, private_key, id from  USER where ID = (select max(ID) from USERS)").fetchone()
+                "select  username, password, public_key, private_key, id from  USERS where ID = (select max(ID) from USERS)").fetchone()
             latestInsertModified = (latestInsert[0], latestInsert[1], latestInsert[2], latestInsert[3], latestInsert[4])
 
             return latestInsertModified
@@ -104,6 +104,8 @@ class Signup:
         try:
             cur.execute(insertStatement, valuesToInsert)
             conn.commit()
+            return True
 
         except Error as e:
             print(e)
+            return False

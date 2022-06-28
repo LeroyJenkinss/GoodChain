@@ -86,7 +86,7 @@ class Pools:
         try:
             cur.execute("UPDATE pool set poolfull = 0 WHERE id = (?) ", [poolid])
             conn.commit()
-            
+
         except Error as e:
             print(e)
         return

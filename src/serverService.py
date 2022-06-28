@@ -181,7 +181,6 @@ class ServerService:
                     s.close()
                     ready_to_read.remove(s)
 
-
     def recUpdatePool(self):
         port = 1239
         HEADERSIZE = 10
