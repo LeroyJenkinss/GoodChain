@@ -103,10 +103,11 @@ class Block:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
             print('Block has been added.')
+            return True
 
-            return
         except Error as e:
             print(e)
+            return False
 
     def getLatestBlock(self):
         try:
