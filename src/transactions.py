@@ -254,6 +254,12 @@ class Transactions:
             cur.execute(sqlstatement, values_to_insert)
             conn.commit()
             HashCheck().writeHashtransaction()
+
+            latestTransAction = self.getLatestTransaction()
+            result = ClientService().sendTransactions(latestTransAction)
+            if not result:
+                self.removeLatestTransaction()
+
         except Error as e:
             print(e)
 
@@ -307,9 +313,6 @@ class Transactions:
             if int(value[0]) == 0:
                 value = '0'
                 return value
-
-            print(f'This is the value: {value}')
-            print(f'This is the value[0]: {format(value[0], ".2f")}')
         except Error as e:
             print(e)
             return False

@@ -72,7 +72,6 @@ class ClientService:
             print('verification failed and will be removed')
             return False
 
-
     def sendPool(self, poolData):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -87,4 +86,20 @@ class ClientService:
                 return False
         except:
             print('Pool failed and wil be removed')
+            return False
+
+    def sendNewBlockVerify(self, verifyBlockData):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.TCP_IP, 1238))
+            s.send(pickle.dumps(verifyBlockData))
+            data = s.recv(self.BUFFER_SIZE)
+            if data == b'1':
+                print('Verification was send')
+                s.close()
+                return True
+            else:
+                return False
+        except:
+            print('verification failed and will be removed')
             return False

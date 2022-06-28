@@ -80,11 +80,12 @@ class Block:
         try:
             latestBlockInserted = cur.execute(
                 "select blockhash, poolid, mineruserid, verifiedblock,nonce, pending, created, id from  BLOCK where ID = (select max(ID) from BLOCK)").fetchone()
-            latestInsertModified = (latestBlockInserted[0] , latestBlockInserted[1], latestBlockInserted[2], latestBlockInserted[3], latestBlockInserted[4], latestBlockInserted[5], latestBlockInserted[6], latestBlockInserted[7])
+            latestInsertModified = (
+            latestBlockInserted[0], latestBlockInserted[1], latestBlockInserted[2], latestBlockInserted[3],
+            latestBlockInserted[4], latestBlockInserted[5], latestBlockInserted[6], latestBlockInserted[7])
             return latestInsertModified
         except Error as e:
             print(f'This is an error when getting lastest block: {e}')
-
 
     def removeLatestBlock(self, blockId):
         try:
@@ -96,7 +97,8 @@ class Block:
 
     def CreateNewBlock(self, blockData):
         sql_statement = '''INSERT INTO Block (blockHash, poolid, mineruserid, verifiedblock,nonce, pending, created ) VALUES(?,?,?,?,?,?,?)'''
-        values_to_insert = (blockData[0], blockData[1], blockData[2], blockData[3], blockData[4], blockData[5], blockData[6])
+        values_to_insert = (
+        blockData[0], blockData[1], blockData[2], blockData[3], blockData[4], blockData[5], blockData[6])
         try:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
@@ -130,7 +132,7 @@ class Block:
         if newDigest == block[1] and checkTransactions != False:
             self.createNewBlockVerify(block[0], userId, 1)
             amountBlockVerified = int(self.getAmountBlockVerified(block[0])[0])
-            if amountBlockVerified == 3:
+            if amountBlockVerified >= 1:
                 Transactions().createTransAction2(1, block[3],
                                                   int(Transactions().GetPoolTransactionFees(block[2])) + 50, 0, 1,
                                                   'miningreward')
@@ -156,10 +158,35 @@ class Block:
             conn.commit()
             print('Block has been verified.')
 
+            # Here I will extract the latest insert for the serverbroadcast
+            latestBlockverify = self.getLatestBlockVerify(blockId)
+            result = ClientService().sendNewBlockVerify(latestBlockverify)
+            if not result:
+                self.removeLatestBlockVerify(latestBlockverify[4])
+
             if blockCorrect == 1:
                 self.checkIfBlockVerified3Times(blockId)
+
         except Error as e:
             print(e)
+
+    def removeLatestBlockVerify(self, blockid):
+        try:
+            latestInsertToRemove = cur.execute(
+                "delete from  BLOCKVERIFY where ID = (?)", [blockid])
+            conn.commit()
+
+        except Error as e:
+            print(f'removeLatestTransaction didnt work : {e}')
+
+    def getLatestBlockVerify(self, blockidd):
+        try:
+            latestInsert = cur.execute("select blockid, validateUserId, blockcorrect, id created from  Blockverify where ID = (?)", [blockidd]).fetchone()
+            latestInsertModified = (latestInsert[0], latestInsert[1], latestInsert[2], latestInsert[3], latestInsert[4])
+
+            return latestInsertModified
+        except Error as e:
+            print(f'This is an error when getting lastest insert: {e}')
 
     def getALlFromBlock(self, blockId):
         try:
@@ -171,12 +198,12 @@ class Block:
 
     def checkIfBlockVerified3Times(self, blockId):
         try:
-            timesVerified = cur.execute(
-                "select count(validateUserId) from BLOCKVERIFY as BV left join BLOCK B on B.id = BV.blockid where blockid = (?)",
-                [blockId]).fetchall()
-            if len(timesVerified) >= 2:
-                cur.execute('''UPDATE BLOCK set pending=:pending WHERE id=:id , {"pending": 0, "id": blockId}''')
-                conn.commit()
+            # timesVerified = cur.execute(
+            #     "select count(validateUserId) from BLOCKVERIFY as BV left join BLOCK B on B.id = BV.blockid where blockid = (?)",
+            #     [blockId]).fetchall()
+            # if len(timesVerified) >= 2:
+            cur.execute('''UPDATE BLOCK set pending=:pending WHERE id=:id , {"pending": 0, "id": blockId}''')
+            conn.commit()
         except Error as e:
             print(e)
 
@@ -241,3 +268,16 @@ class Block:
         except Error as e:
             print(e)
         return
+
+    def AddNewblockVerify(self, blockverifydata):
+        try:
+            sqlstatement = '''INSERT INTO BLOCKVERIFY (BlockId, validateUserId ,Created, BlockCorrect) VALUES(?,?,?,?)'''
+            values_to_insert = (
+                blockverifydata[0], blockverifydata[1], blockverifydata[2], blockverifydata[3])
+            cur.execute(sqlstatement, values_to_insert)
+            conn.commit()
+            return True
+
+        except Error as e:
+            print(e)
+            return False
