@@ -103,3 +103,20 @@ class ClientService:
         except:
             print('verification failed and will be removed')
             return False
+
+    def sendUpdatedFullPool(self, poolData):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.TCP_IP, 1239))
+            s.send(pickle.dumps(poolData))
+            data = s.recv(self.BUFFER_SIZE)
+            if data == b'1':
+                print('Update pool was send')
+                s.close()
+                return True
+            else:
+                return False
+        except:
+            print('Uodate Pool failed and wil be removed')
+            return False
+

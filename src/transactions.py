@@ -103,8 +103,7 @@ class Transactions:
 
     def removeLatestTransaction(self):
         try:
-            latestInsertToRemove = cur.execute(
-                "delete from  TRANSACTIONS where ID = (select max(ID) from TRANSACTIONS)")
+            cur.execute("delete from  TRANSACTIONS where ID = (select max(ID) from TRANSACTIONS)")
             conn.commit()
 
         except Error as e:

@@ -50,7 +50,7 @@ class Pools:
 
     def removeLatestPool(self, poolId):
         try:
-            latestInsertToRemove = cur.execute("delete from  POOL where ID = (?)", [poolId])
+            cur.execute("delete from  POOL where ID = (?)", [poolId])
             conn.commit()
 
         except Error as e:
@@ -72,9 +72,34 @@ class Pools:
         try:
             cur.execute("UPDATE pool set poolfull = 1 WHERE id = (?) ", [poolid])
             conn.commit()
+
+            # New pool broadcast
+            latestUpdatedPool = self.getLatestPool()
+            result = ClientService().sendUpdatedFullPool(latestUpdatedPool)
+            if not result:
+                self.removeUpdateFullLatestPool(poolid)
         except Error as e:
             print(e)
         return
+
+    def removeUpdateFullLatestPool(self, poolid):
+        try:
+            cur.execute("UPDATE pool set poolfull = 0 WHERE id = (?) ", [poolid])
+            conn.commit()
+            
+        except Error as e:
+            print(e)
+        return
+
+    def UpdatefullPool(self, poolid):
+        try:
+            cur.execute("UPDATE pool set poolfull = 1 WHERE id = (?) ", [poolid])
+            conn.commit()
+            return True
+        except Error as e:
+            print(e)
+            return False
+
 
     def newUserPool(self):
         sqlstatement = '''select id from POOL where realpool = 0'''

@@ -89,7 +89,7 @@ class Block:
 
     def removeLatestBlock(self, blockId):
         try:
-            latestInsertToRemove = cur.execute("delete from  BLOCK where ID = (?)", [blockId])
+            cur.execute("delete from  BLOCK where ID = (?)", [blockId])
             conn.commit()
 
         except Error as e:
@@ -172,8 +172,7 @@ class Block:
 
     def removeLatestBlockVerify(self, blockid):
         try:
-            latestInsertToRemove = cur.execute(
-                "delete from  BLOCKVERIFY where ID = (?)", [blockid])
+            cur.execute("delete from  BLOCKVERIFY where ID = (?)", [blockid])
             conn.commit()
 
         except Error as e:
