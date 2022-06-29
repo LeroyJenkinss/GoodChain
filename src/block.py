@@ -181,7 +181,7 @@ class Block:
 
     def getLatestBlockVerify(self, blockidd):
         try:
-            latestInsert = cur.execute("select blockid, validateUserId, blockcorrect, id created from  Blockverify where ID = (?)", [blockidd]).fetchone()
+            latestInsert = cur.execute("select blockid, validateUserId, blockcorrect, created, id from  Blockverify where ID = (?)", [blockidd]).fetchone()
             latestInsertModified = (latestInsert[0], latestInsert[1], latestInsert[2], latestInsert[3], latestInsert[4])
 
             return latestInsertModified
@@ -271,7 +271,7 @@ class Block:
 
     def AddNewblockVerify(self, blockverifydata):
         try:
-            sqlstatement = '''INSERT INTO BLOCKVERIFY (BlockId, validateUserId ,Created, BlockCorrect) VALUES(?,?,?,?)'''
+            sqlstatement = '''INSERT INTO BLOCKVERIFY (BlockId, validateUserId ,blockcorrect, Created) VALUES(?,?,?,?)'''
             values_to_insert = (
                 blockverifydata[0], blockverifydata[1], blockverifydata[2], blockverifydata[3])
             cur.execute(sqlstatement, values_to_insert)
