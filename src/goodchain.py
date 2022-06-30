@@ -3,6 +3,7 @@ from consolemenu.items import FunctionItem, command_item, submenu_item
 import database
 from submenu import *
 from pools import Pools
+import time
 
 from login import Login
 from signup import Signup
@@ -126,6 +127,7 @@ if __name__ == "__main__":
     new_thread6.start()
     new_thread7 = Thread(target=ServerService().recUpdatePool)
     new_thread7.start()
+    # time.sleep(10)
     Pools().newUserPool()
     Signup().newFakeUser()
     mainmenu()

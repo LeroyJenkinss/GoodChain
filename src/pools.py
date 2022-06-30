@@ -41,7 +41,7 @@ class Pools:
 
     def getLatestPool(self):
         try:
-            latestInsert = cur.execute("select  poolfull, realpool, verified, created, id from  POOL where ID = (select max(ID) from USERS)").fetchone()
+            latestInsert = cur.execute("select  poolfull, realpool, verified, created, id from  POOL where ID = (select max(ID) from POOl)").fetchone()
             latestPool = (latestInsert[0], latestInsert[1], latestInsert[2], latestInsert[3], latestInsert[4])
 
             return latestPool
@@ -75,7 +75,7 @@ class Pools:
 
             # New pool broadcast
             latestUpdatedPool = self.getLatestPool()
-            result = ClientService().sendUpdatedFullPool(latestUpdatedPool)
+            result = ClientService().sendUpdatedFullPool(latestUpdatedPool[4])
             if not result:
                 self.removeUpdateFullLatestPool(poolid)
         except Error as e:
@@ -102,13 +102,25 @@ class Pools:
 
 
     def newUserPool(self):
-        sqlstatement = '''select id from POOL where realpool = 0'''
+        sqlstatement = '''select id from POOL'''
         nullcheck = cur.execute(sqlstatement).fetchone()
         if nullcheck is None:
-            sqlstatement = '''insert into POOL (poolfull, created, realpool, verified) VALUES (?,?,?,?)'''
-            values_to_insert = (False, datetime.now(), False, False)
-            cur.execute(sqlstatement, values_to_insert)
-            conn.commit()
+            try:
+                sqlstatement = '''insert into POOL (poolfull, created, realpool, verified) VALUES (?,?,?,?)'''
+                values_to_insert = (False, datetime.now(), False, False)
+                cur.execute(sqlstatement, values_to_insert)
+                conn.commit()
+
+                # New pool broadcast
+                latestPool = self.getLatestPool()
+                result = ClientService().sendPool(latestPool)
+                if not result:
+                    self.removeLatestPool(latestPool[4])
+
+            except Error as e:
+                print(e)
+
+
 
     def checkPool(self):
         global poolnum

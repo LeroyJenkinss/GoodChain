@@ -154,6 +154,8 @@ class Block:
     def createNewBlockVerify(self, blockId, userId, blockCorrect):
         sql_statement = '''INSERT INTO BLOCKVERIFY (BlockId, validateUserId ,Created, BlockCorrect) VALUES(?,?,?,?)'''
         values_to_insert = (blockId, userId, str(datetime.now()), blockCorrect)
+
+
         try:
             cur.execute(sql_statement, values_to_insert)
             conn.commit()
@@ -202,7 +204,7 @@ class Block:
             #     "select count(validateUserId) from BLOCKVERIFY as BV left join BLOCK B on B.id = BV.blockid where blockid = (?)",
             #     [blockId]).fetchall()
             # if len(timesVerified) >= 2:
-            cur.execute('''UPDATE BLOCK set pending=:pending WHERE id=:id , {"pending": 0, "id": blockId}''')
+            cur.execute("UPDATE BLOCK set pending = 0 WHERE id = (?)", [blockId])
             conn.commit()
         except Error as e:
             print(e)
@@ -243,7 +245,7 @@ class Block:
     def blockVerified(self, block):
         try:
             blockId = block[0]
-            cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [blockId])
+            cur.execute("UPDATE BLOCK set verifiedblock = 1, pending = 0 WHERE id = (?) ", [blockId])
             conn.commit()
 
             # Here I will extract the latest insert for the serverbroadcast
@@ -263,7 +265,7 @@ class Block:
 
     def AddblockVerified(self, verifyData):
         try:
-            cur.execute("UPDATE BLOCK set verifiedblock = 1 WHERE id = (?) ", [verifyData])
+            cur.execute("UPDATE BLOCK set verifiedblock = 1, pending = 1 WHERE id = (?) ", [verifyData])
             conn.commit()
         except Error as e:
             print(e)
