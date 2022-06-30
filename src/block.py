@@ -204,7 +204,7 @@ class Block:
             #     "select count(validateUserId) from BLOCKVERIFY as BV left join BLOCK B on B.id = BV.blockid where blockid = (?)",
             #     [blockId]).fetchall()
             # if len(timesVerified) >= 2:
-            cur.execute("UPDATE BLOCK set pending = 0 WHERE id = (?)", [blockId])
+            cur.execute("UPDATE BLOCK set pending = 0, verifiedblock = 1 WHERE id = (?)", [blockId])
             conn.commit()
         except Error as e:
             print(e)

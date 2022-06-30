@@ -120,3 +120,19 @@ class ClientService:
             print('Uodate Pool failed and wil be removed')
             return False
 
+    def deletetransactions(self, transactionId):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.TCP_IP, 1240))
+            s.send(pickle.dumps(transactionId))
+            data = s.recv(self.BUFFER_SIZE)
+            if data == b'1':
+                print('Transaction was send')
+                s.close()
+                return True
+            else:
+                return False
+        except:
+            print('Transaction failed and wil be removed')
+            return False
+

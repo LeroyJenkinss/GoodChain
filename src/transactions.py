@@ -95,8 +95,8 @@ class Transactions:
             latestInsert = cur.execute(
                 "select sender, reciever, txvalue, txfee, poolid, created, modified, falsetransaction, transactionsig from  TRANSACTIONS where ID = (select max(ID) from TRANSACTIONS)").fetchone()
             latestInsertModified = (
-            latestInsert[0], latestInsert[1], float(latestInsert[2]), float(latestInsert[3]), latestInsert[4],
-            latestInsert[5], latestInsert[6], latestInsert[7], latestInsert[8])
+                latestInsert[0], latestInsert[1], float(latestInsert[2]), float(latestInsert[3]), latestInsert[4],
+                latestInsert[5], latestInsert[6], latestInsert[7], latestInsert[8])
 
             return latestInsertModified
         except Error as e:
@@ -286,8 +286,12 @@ class Transactions:
                 if len(str(transId)) < 3 and idstr.__contains__(str(transId)):
                     tryagain = False
                     try:
-                        cur.execute('delete from TRANSACTIONS where id = (?)', [transId])
-                        conn.commit()
+                        # broadcast
+                        result = ClientService().deletetransactions(transId)
+                        if result:
+                            cur.execute('delete from TRANSACTIONS where id = (?)', [transId])
+                            conn.commit()
+
                         return
                     except Error as e:
                         print(e)
@@ -330,4 +334,14 @@ class Transactions:
 
         except Error as e:
             print(e)
+            return False
+
+    def deleteTransAction(self, transId):
+        try:
+            cur.execute('delete from TRANSACTIONS where id = (?)', [transId])
+            conn.commit()
+            return True
+
+        except Error as e:
+            print(f'removeLatestTransaction didnt work : {e}')
             return False
