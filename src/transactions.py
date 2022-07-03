@@ -171,6 +171,11 @@ class Transactions:
             cur.execute(sql_statement)
             conn.commit()
             print(f'Transaction has been flagged as not correct')
+
+            # broadcast
+            result = ClientService().sendFalseTransactions(transId)
+            if not result:
+                self.removeSetFalseTransaction()
         except Error as e:
             print(e)
 
@@ -182,9 +187,14 @@ class Transactions:
                 [userId]).fetchall()
             if len(falseparlist) > 0:
                 self.redirectCorrectTransactionsToPool(userId)
-            cur.execute(f'UPDATE transactions set txvalue = 0, txfee = 0 where falsetransaction = 1 and sender = (?)',
-                        [userId])
-            conn.commit()
+                cur.execute(
+                    f'UPDATE transactions set txvalue = 0, txfee = 0 where falsetransaction = 1 and sender = (?)',
+                    [userId])
+                conn.commit()
+                # broadcast
+                result = ClientService().setFalseTransactionToZeroClient(userId)
+                if not result:
+                    print('client did not set transaction to zero')
 
             if len(falseparlist) > 0:
                 print(f'The following transactions have been set to zero, due to not being valid {falseparlist}')
@@ -217,11 +227,25 @@ class Transactions:
                             f'UPDATE transactions set poolid = (?) where id = (?)',
                             [poolId, a[0]])
                         conn.commit()
-
+                        # broadcast
+                        sendData = (poolId, a[0])
+                        result = ClientService().redirectCorrectTransactionsToPoolClient(sendData)
+                        if not result:
+                            print('Client did not update pool')
         except Error as e:
             print(e)
 
         return
+
+    def redirectCorrectTransactionsToPoolServer(self, data):
+        try:
+            cur.execute('UPDATE transactions set poolid = (?) where id = (?)', [data[0], data[1]])
+            conn.commit()
+            return True
+
+        except Error as e:
+            print(f'redirectCorrectTransactionsToPoolServer didnt go well: {e}')
+            return False
 
     def fetchSignData(self, transactionId):
         data = cur.execute(
@@ -314,7 +338,10 @@ class Transactions:
             value = cur.execute(
                 "select sum(txfee) from TRANSACTIONS as T left join POOL as P on P.id = T.poolid where t.poolid = (?) and txvalue != 0",
                 [poolId]).fetchone()
-            if int(value[0]) == 0:
+            if value[0] is None:
+                value = -50
+                return value
+            elif int(value[0]) == 0:
                 value = '0'
                 return value
         except Error as e:
@@ -344,4 +371,35 @@ class Transactions:
 
         except Error as e:
             print(f'removeLatestTransaction didnt work : {e}')
+            return False
+
+    def setFalseTransActionServer(self, transId):
+        try:
+            cur.execute('UPDATE transactions Set falsetransaction = 1 WHERE Id = (?)', [transId])
+            conn.commit()
+            return True
+
+        except Error as e:
+            print(f'removeLatestTransaction didnt work : {e}')
+            return False
+
+    def removeSetFalseTransaction(self, transId):
+        try:
+            cur.execute('UPDATE transactions Set falsetransaction = 0 WHERE Id = (?)', [transId])
+            conn.commit()
+            return True
+
+        except Error as e:
+            print(f'removeSetFalseTransaction didnt work : {e}')
+            return False
+
+    def setFalseTransactionToZeroServer(self, Id):
+        try:
+            cur.execute('UPDATE transactions set txvalue = 0, txfee = 0 where falsetransaction = 1 and sender = (?)',
+                        [Id])
+            conn.commit()
+            return True
+
+        except Error as e:
+            print(f'setFalseTransactionToZeroServer didnt work : {e}')
             return False

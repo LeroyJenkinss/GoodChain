@@ -136,3 +136,54 @@ class ClientService:
             print('Transaction failed and wil be removed')
             return False
 
+    def sendFalseTransactions(self, transactionData):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.TCP_IP, 1241))
+            s.send(pickle.dumps(transactionData))
+            data = s.recv(self.BUFFER_SIZE)
+            if data == b'1':
+                print('False Transaction was send')
+                s.close()
+                return True
+            else:
+                return False
+        except:
+            print('Transaction failed and wil be removed')
+            return False
+
+
+    def redirectCorrectTransactionsToPoolClient(self, SendData):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.TCP_IP, 1242))
+            s.send(pickle.dumps(SendData))
+            data = s.recv(self.BUFFER_SIZE)
+            if data == b'1':
+                print('False Transaction was send')
+                s.close()
+                return True
+            else:
+                return False
+        except:
+            print('Transaction failed and wil be removed')
+            return False
+
+    def setFalseTransactionToZeroClient(self, id):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((self.TCP_IP, 1243))
+            s.send(pickle.dumps(id))
+            data = s.recv(self.BUFFER_SIZE)
+            if data == b'1':
+                print('False Transaction was send')
+                s.close()
+                return True
+            else:
+                return False
+        except:
+            print('Transaction failed and wil be removed')
+            return False
+
+
+
