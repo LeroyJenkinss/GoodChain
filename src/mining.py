@@ -110,7 +110,7 @@ class Mining:
         return valuesTransaction
 
     def verifyBlockPresent(self):
-        sql_statement = '''SELECT * from Block where verifiedblock != 1 '''
+        sql_statement = '''SELECT * from Block as b inner join BLOCKVERIFY B2 on b.id = B2.blockid where b.verifiedblock != 1 and B2.blockcorrect = 0'''
         try:
             ver = cur.execute(sql_statement)
             if ver.fetchone() is not None:
