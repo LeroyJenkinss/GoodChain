@@ -267,9 +267,10 @@ class Block:
         try:
             cur.execute("UPDATE BLOCK set verifiedblock = 1, pending = 1 WHERE id = (?) ", [verifyData])
             conn.commit()
+            return True
         except Error as e:
             print(e)
-        return
+            return False
 
     def AddNewblockVerify(self, blockverifydata):
         try:
